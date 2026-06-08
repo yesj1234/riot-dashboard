@@ -1,0 +1,31 @@
+name: Diagnose queue IDs
+
+# One-shot diagnostic — prints each member's recent queueId distribution so we
+# can find the 2026 augment-ARAM queue. Manual trigger; writes nothing.
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run queue diagnostic
+        env:
+          RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
+        run: |
+          if [ -z "$RIOT_API_KEY" ]; then
+            echo "::error::RIOT_API_KEY secret is not set."
+            exit 1
+          fi
+          python diagnose_queues.py
