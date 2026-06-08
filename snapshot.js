@@ -1,9 +1,9 @@
 const SNAPSHOT = {
   "group": "The Howling Abyss Boys",
-  "generatedAt": "2026-06-08",
+  "generatedAt": "2026-06-09",
   "window": {
-    "from": "",
-    "to": "2026-06-08",
+    "from": "2025-07-02",
+    "to": "2026-03-18",
     "patch": "",
     "queue": "ARAM"
   },

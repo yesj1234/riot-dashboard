@@ -61,7 +61,11 @@ MEMBERS = [
     "하짜르트#KR1",
     "커피도안되고#KR1",
     "함마분쇄기#신도림역",
-    "복낙아#다리떨지마"
+    "복낙아#다리떨지마",
+    "h1zzy#KR1",
+    "야주려#KR1",
+    "에프킬라#9059",
+    "김규평#중앙정보부",
     # add your group here...
 ]
 
@@ -401,15 +405,23 @@ def build_games_array(records: list[GameRecord], riot_ids: dict[str, str]) -> li
     } for r in records]
 
 
-def write_snapshot(players: list[dict], total_games: int, games: list[dict]) -> None:
+def write_snapshot(players: list[dict], total_games: int, games: list[dict],
+                   records: list[GameRecord]) -> None:
+    # Actual played-date range from the games themselves; fall back to the
+    # explicit START_TIME/END_TIME bounds when set. Without this, an unset
+    # START_TIME left window.from = "" and the dashboard rendered NaN.
+    game_dates = [r.date for r in records if r.date]
+    date_from = (datetime.fromtimestamp(START_TIME).strftime("%Y-%m-%d")
+                 if START_TIME else (min(game_dates) if game_dates else ""))
+    date_to = (datetime.fromtimestamp(END_TIME).strftime("%Y-%m-%d")
+               if END_TIME else (max(game_dates) if game_dates
+                                  else datetime.now().strftime("%Y-%m-%d")))
     snapshot = {
         "group": GROUP_NAME,
         "generatedAt": datetime.now().strftime("%Y-%m-%d"),
         "window": {
-            "from": datetime.fromtimestamp(START_TIME).strftime("%Y-%m-%d")
-            if START_TIME else "",
-            "to": datetime.fromtimestamp(END_TIME).strftime("%Y-%m-%d")
-            if END_TIME else datetime.now().strftime("%Y-%m-%d"),
+            "from": date_from,
+            "to": date_to,
             "patch": PATCH_LABEL,
             "queue": "ARAM",
         },
@@ -489,7 +501,7 @@ def run_offline() -> None:
     score_games(records)
     players = aggregate(records, member_puuids, icons)
     games = build_games_array(records, member_puuids)
-    write_snapshot(players, len(files), games)
+    write_snapshot(players, len(files), games, records)
 
 
 def main() -> None:
@@ -551,7 +563,7 @@ def main() -> None:
     score_games(records)
     players = aggregate(records, member_puuids, icons)
     games = build_games_array(records, member_puuids)
-    write_snapshot(players, len(all_ids), games)
+    write_snapshot(players, len(all_ids), games, records)
 
 
 if __name__ == "__main__":

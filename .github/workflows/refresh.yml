@@ -1,0 +1,60 @@
+name: Refresh ARAM snapshot
+
+# Manual trigger only — click "Run workflow" in the Actions tab.
+on:
+  workflow_dispatch:
+
+# Allow the job to commit the regenerated snapshot back to the repo.
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-snapshot
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      # match_cache/ is gitignored, so persist it across runs to avoid
+      # re-fetching every match from the Riot API each time.
+      - name: Restore match cache
+        uses: actions/cache@v4
+        with:
+          path: match_cache
+          key: match-cache-v1-${{ github.run_id }}
+          restore-keys: |
+            match-cache-v1-
+
+      - name: Regenerate snapshot
+        env:
+          RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
+        run: |
+          if [ -z "$RIOT_API_KEY" ]; then
+            echo "::error::RIOT_API_KEY secret is not set. Add it under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          python aram_snapshot.py
+
+      - name: Commit & push if snapshot changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- snapshot.js; then
+            echo "No change in snapshot.js — nothing to commit."
+            exit 0
+          fi
+          git add snapshot.js
+          git commit -m "chore: refresh ARAM snapshot [skip ci]"
+          git push

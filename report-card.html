@@ -481,8 +481,8 @@ const DIST_METRICS = [
   {key:'heal',  label:'팀 회복·보호막 비중',color:ARCH.enchanter.color,field:'healShieldPct',bounded:true,  facet:'enchanter', fmt:x=>pct(x,0)},
 ];
 const DIST_MARK = 'var(--ink)';   // marker line/label color (paper theme — dark ink on cream)
-function fmtDate(s){const d=new Date(s+'T00:00:00Z');return d.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});}
-function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000);}
+function fmtDate(s){if(!s)return '–';const d=new Date(s+'T00:00:00Z');if(isNaN(d))return '–';return d.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});}
+function daysBetween(a,b){const da=new Date(a),db=new Date(b);if(isNaN(da)||isNaN(db))return '–';return Math.round((db-da)/86400000);}
 
 /* deterministic avatar from profileIconId */
 function avatar(p, big){
