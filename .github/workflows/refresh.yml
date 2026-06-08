@@ -27,16 +27,8 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      # match_cache/ is gitignored, so persist it across runs to avoid
-      # re-fetching every match from the Riot API each time.
-      - name: Restore match cache
-        uses: actions/cache@v4
-        with:
-          path: match_cache
-          key: match-cache-v1-${{ github.run_id }}
-          restore-keys: |
-            match-cache-v1-
-
+      # match_cache/ is committed to the repo (match JSON is immutable), so it
+      # arrives with the checkout — no API re-fetch for already-seen matches.
       - name: Regenerate snapshot
         env:
           RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
@@ -47,14 +39,14 @@ jobs:
           fi
           python aram_snapshot.py
 
-      - name: Commit & push if snapshot changed
+      - name: Commit & push if snapshot or cache changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- snapshot.js; then
-            echo "No change in snapshot.js — nothing to commit."
+          git add snapshot.js match_cache
+          if git diff --cached --quiet; then
+            echo "No change in snapshot.js or match_cache — nothing to commit."
             exit 0
           fi
-          git add snapshot.js
-          git commit -m "chore: refresh ARAM snapshot [skip ci]"
+          git commit -m "chore: refresh ARAM snapshot + cache [skip ci]"
           git push

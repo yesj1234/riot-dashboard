@@ -71,7 +71,7 @@ MEMBERS = [
 
 QUEUE_ARAM = 450
 MAX_MATCHES_PER_PLAYER = 200     # cap the pull per member
-START_TIME: Optional[int] = None  # epoch seconds (inclusive); None = no lower bound
+START_TIME: Optional[int] = 1767193200  # 2026-01-01 00:00 KST; only games on/after this
 END_TIME: Optional[int] = None    # epoch seconds; None = now
 PATCH_LABEL = ""                  # optional, shown in the header (e.g. "16.11")
 
@@ -243,6 +243,21 @@ class GameRecord:
     primary: float                 # the archetype's primary metric value
     contrib_pct: float = 0.0       # filled in pass 2
     game_score: float = 0.0        # filled in pass 2
+
+
+def in_window(info: dict) -> bool:
+    """True if the match falls within [START_TIME, END_TIME].
+
+    Applied to every match in BOTH the API and offline paths, so stale cached
+    matches outside the window (e.g. last year's games) are never scored even
+    though their JSON still sits in match_cache/.
+    """
+    ts = (info.get("gameEndTimestamp") or info.get("gameCreation", 0)) / 1000
+    if START_TIME is not None and ts < START_TIME:
+        return False
+    if END_TIME is not None and ts > END_TIME:
+        return False
+    return True
 
 
 def build_game_record(part: dict, info: dict, archetype: str,
@@ -483,6 +498,8 @@ def run_offline() -> None:
         info = match["info"]
         if info.get("gameDuration", 0) < MIN_GAME_DURATION:
             continue
+        if not in_window(info):
+            continue
         participants = info["participants"]
         for part in participants:
             if part["puuid"] not in member_set:
@@ -544,6 +561,8 @@ def main() -> None:
             continue
         info = match["info"]
         if info.get("gameDuration", 0) < MIN_GAME_DURATION:
+            continue
+        if not in_window(info):
             continue
         participants = info["participants"]
         for part in participants:

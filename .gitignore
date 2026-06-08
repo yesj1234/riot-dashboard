@@ -1,6 +1,3 @@
-# Local Riot match cache (regenerated from the API; can be large)
-match_cache/
-
 # Python
 venv/
 __pycache__/
