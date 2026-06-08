@@ -1,0 +1,22 @@
+# Local Riot match cache (regenerated from the API; can be large)
+match_cache/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Generated plain-JSON twin of snapshot.js (the dashboard only reads snapshot.js)
+snapshot.json
+
+# Unrelated VS Code debug config (Django) — not part of this project
+launch.json
+
+# Internal design/plan docs (not needed for the published site)
+docs/
+
+# Claude Code local session state
+.claude/
+
+# macOS
+.DS_Store

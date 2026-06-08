@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ARAM Power Rankings — The Howling Abyss Boys</title>
+<style>
+:root{
+  --bg:#0b0f14;
+  --bg-grid:rgba(148,163,184,.035);
+  --panel:#0e141b;
+  --card:#111a24;
+  --card-2:#0f1620;
+  --line:rgba(148,163,184,.12);
+  --line-soft:rgba(148,163,184,.07);
+  --line-strong:rgba(148,163,184,.20);
+  --ink:#e9eff6;
+  --ink-dim:#94a3b4;
+  --ink-faint:#5f6e7d;
+  --win:#5e84c4;       /* win points  */
+  --contrib:#3fb3a8;   /* contribution points (accent) */
+  --kp:#86b6c7;        /* kill participation points */
+  --accent:#3fb3a8;
+  --accent-soft:rgba(63,179,168,.14);
+  --amber:#cf9b4a;
+  --amber-soft:rgba(207,155,74,.14);
+  --pos:#3fb3a8;
+  --neg:#b06b6b;
+  --sans:"Inter var",system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  background-image:
+    linear-gradient(var(--bg-grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--bg-grid) 1px,transparent 1px);
+  background-size:44px 44px;
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.01em}
+button{font-family:inherit;color:inherit;cursor:pointer}
+::selection{background:rgba(63,179,168,.28)}
+
+/* ============ HEADER ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  background:rgba(11,15,20,.82);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:24px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand .mark{
+  width:30px;height:30px;border-radius:7px;flex:none;
+  border:1px solid var(--line-strong);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(63,179,168,.55), transparent 60%),
+    var(--card);
+  position:relative;
+}
+.brand .mark::after{
+  content:"";position:absolute;inset:0;margin:auto;width:9px;height:9px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 14px rgba(63,179,168,.8);
+}
+.brand .name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand .name .sub{display:block;font-size:11px;color:var(--ink-faint);font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+.nav{display:flex;gap:2px}
+.nav a{
+  font-size:12.5px;color:var(--ink-dim);text-decoration:none;padding:7px 12px;border-radius:7px;
+  letter-spacing:.01em;transition:color .15s,background .15s;white-space:nowrap;
+}
+.nav a:hover{color:var(--ink);background:rgba(148,163,184,.07)}
+.nav a.nav-alt{color:var(--accent);margin-left:8px}
+.nav a.nav-alt:hover{color:var(--accent);background:rgba(63,179,168,.12)}
+
+/* ============ HERO HEADER BLOCK ============ */
+.hero{padding:40px 0 26px;border-bottom:1px solid var(--line)}
+.hero .eyebrow{font-size:12px;color:var(--accent);letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+.hero h1{font-size:34px;margin:10px 0 0;letter-spacing:-.02em}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:999px;padding:5px 11px;
+  background:rgba(148,163,184,.04);
+}
+.chip b{color:var(--ink);font-weight:600}
+.chip.accent{border-color:rgba(63,179,168,.4);color:var(--accent);background:var(--accent-soft)}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+/* stat strip */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:24px;
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--line)}
+.strip .cell{background:var(--panel);padding:16px 18px}
+.strip .k{font-size:11px;color:var(--ink-faint);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.strip .v{font-size:25px;margin-top:6px;color:var(--ink)}
+.strip .v small{font-size:13px;color:var(--ink-dim);margin-left:4px;font-family:var(--sans);letter-spacing:0}
+
+/* ============ SECTION ============ */
+section{padding:46px 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px}
+.sec-head h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);font-weight:600}
+.sec-head h2 .idx{color:var(--accent);margin-right:10px;font-family:var(--mono)}
+.sec-head .note{font-size:12px;color:var(--ink-faint);max-width:520px;text-align:right}
+
+/* ============ PODIUM ============ */
+.podium{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:14px;align-items:end;margin-bottom:30px}
+.pod{
+  border:1px solid var(--line);border-radius:14px;background:var(--card);
+  padding:20px 18px 18px;position:relative;overflow:hidden;
+  transition:border-color .18s,transform .18s;
+}
+.pod:hover{border-color:var(--line-strong)}
+.pod.p1{background:linear-gradient(180deg,rgba(63,179,168,.10),transparent 55%),var(--card);
+  border-color:rgba(63,179,168,.32)}
+.pod .crown{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  color:var(--ink-faint);font-weight:600}
+.pod.p1 .crown{color:var(--accent)}
+.pod .who{display:flex;align-items:center;gap:12px}
+.pod .who .name{font-size:15px;font-weight:600;line-height:1.15}
+.pod .who .name .tag{display:block;font-size:11px;color:var(--ink-faint);font-family:var(--mono);font-weight:500}
+.pod .score{font-family:var(--mono);font-size:44px;font-weight:600;letter-spacing:-.03em;margin:16px 0 2px;line-height:1}
+.pod.p1 .score{color:var(--accent)}
+.pod .score .of{font-size:14px;color:var(--ink-faint)}
+.pod .pod-stats{display:flex;gap:14px;margin-top:10px;font-size:12px;color:var(--ink-dim)}
+.pod .pod-stats .num{color:var(--ink)}
+
+/* avatar */
+.av{width:38px;height:38px;border-radius:9px;flex:none;border:1px solid var(--line-strong);
+  display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:14px;color:#0b0f14;position:relative;overflow:hidden}
+.av.lg{width:46px;height:46px;border-radius:11px;font-size:17px}
+
+/* archetype tag */
+.atag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.03em;
+  padding:3px 9px;border-radius:6px;border:1px solid var(--line);color:var(--ink-dim);background:rgba(148,163,184,.05);text-transform:capitalize}
+.atag .sw{width:7px;height:7px;border-radius:2px}
+
+/* ============ TABLE ============ */
+.board{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card-2)}
+table{width:100%;border-collapse:collapse}
+thead th{
+  font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;
+  text-align:right;padding:13px 16px;border-bottom:1px solid var(--line);background:var(--panel);
+  cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s;
+}
+thead th:hover{color:var(--ink-dim)}
+thead th.l{text-align:left}
+thead th .arrow{opacity:0;margin-left:5px;font-size:9px;display:inline-block}
+thead th.sorted{color:var(--accent)}
+thead th.sorted .arrow{opacity:1}
+tbody td{padding:13px 16px;border-bottom:1px solid var(--line-soft);text-align:right;white-space:nowrap;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.row{cursor:pointer;transition:background .14s}
+tbody tr.row:hover{background:rgba(148,163,184,.045)}
+tbody tr.row.open{background:rgba(63,179,168,.05)}
+td.l{text-align:left}
+.rank-cell{font-family:var(--mono);font-size:15px;color:var(--ink-dim);width:46px}
+.rank-cell .medal{color:var(--accent)}
+.player-cell{display:flex;align-items:center;gap:11px}
+.player-cell .nm{font-weight:600;font-size:14px;line-height:1.15}
+.player-cell .nm .tag{display:block;font-size:11px;color:var(--ink-faint);font-family:var(--mono);font-weight:500}
+.score-cell{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink)}
+.score-cell .bar{display:inline-block;width:40px;height:4px;border-radius:2px;background:rgba(148,163,184,.15);margin-left:10px;vertical-align:middle;position:relative;overflow:hidden}
+.score-cell .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:2px}
+.wr{font-family:var(--mono)}
+.wr.hi{color:var(--pos)} .wr.lo{color:var(--neg)}
+.chev{display:inline-block;width:14px;color:var(--ink-faint);transition:transform .2s;font-size:11px}
+tr.open .chev{transform:rotate(90deg);color:var(--accent)}
+
+/* expand */
+tr.detail-row>td{padding:0;border-bottom:1px solid var(--line)}
+.detail{padding:0 16px;max-height:0;overflow:hidden;transition:max-height .32s ease}
+tr.detail-row.open .detail{max-height:860px}
+.kde-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.kde-card{border:1px solid var(--line);border-radius:10px;padding:10px 10px 4px;background:rgba(148,163,184,.04)}
+.kde-card.thin{opacity:.62}
+.kde-card.empty{opacity:.4}
+.kde-head{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-bottom:2px}
+.kde-head .kde-p{font-family:var(--mono);color:var(--accent);text-transform:none;letter-spacing:0}
+.kde-na{font-size:11px;color:var(--ink-faint);padding:18px 0;text-align:center}
+@media(max-width:760px){.kde-grid{grid-template-columns:1fr 1fr}
+  tr.detail-row.open .detail{max-height:1400px}}
+.detail-inner{display:grid;grid-template-columns:1.3fr .9fr 1.1fr;gap:26px;padding:24px 6px 28px}
+.det-block .lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-bottom:12px}
+.spark-wrap{border:1px solid var(--line);border-radius:10px;padding:14px 14px 8px;background:var(--card)}
+.spark-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-faint);font-family:var(--mono);margin-top:4px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.metrics .m{background:var(--card);padding:11px 13px}
+.metrics .m .mk{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.metrics .m .mv{font-family:var(--mono);font-size:18px;margin-top:3px;color:var(--ink)}
+.donut-wrap{display:flex;align-items:center;gap:16px}
+.donut-legend{display:flex;flex-direction:column;gap:7px;font-size:12px}
+.donut-legend .li{display:flex;align-items:center;gap:8px;color:var(--ink-dim)}
+.donut-legend .li .sw{width:9px;height:9px;border-radius:2px;flex:none}
+.donut-legend .li .num{margin-left:auto;color:var(--ink)}
+.bestgame{border:1px solid var(--line);border-radius:10px;padding:13px 14px;background:var(--card);margin-top:12px}
+.bestgame .bg-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.bestgame .bg-top .t{font-size:12px;font-weight:600}
+.bestgame .bg-top .res{font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px}
+.res.W{color:var(--pos);background:rgba(63,179,168,.12)} .res.L{color:var(--neg);background:rgba(176,107,107,.12)}
+.bestgame .bg-stats{display:flex;gap:18px;font-size:12px;color:var(--ink-dim)}
+.bestgame .bg-stats .num{color:var(--ink)}
+
+/* provisional band */
+.prov-band{margin-top:18px;border:1px dashed rgba(207,155,74,.35);border-radius:14px;background:rgba(207,155,74,.03);overflow:hidden}
+.prov-band .ph{display:flex;align-items:center;gap:9px;padding:12px 18px;border-bottom:1px solid var(--line-soft);
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);font-weight:600}
+.prov-band .ph .pdot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+.prov-band table tbody td{color:var(--ink-dim)}
+.flag{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--amber);font-family:var(--mono);
+  border:1px solid rgba(207,155,74,.3);border-radius:5px;padding:2px 7px;background:var(--amber-soft)}
+
+/* ============ COMPOSITION ============ */
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+.legend .li{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-dim)}
+.legend .li .sw{width:11px;height:11px;border-radius:3px;flex:none}
+.legend .li b{color:var(--ink);font-weight:600}
+.legend .li .w{color:var(--ink-faint);font-family:var(--mono);font-size:11px}
+.comp{border:1px solid var(--line);border-radius:14px;background:var(--card-2);overflow:hidden}
+.comp-row{display:grid;grid-template-columns:200px 1fr 64px;gap:18px;align-items:center;padding:13px 18px;border-bottom:1px solid var(--line-soft)}
+.comp-row:last-child{border-bottom:none}
+.comp-row .cname{display:flex;align-items:center;gap:10px;min-width:0}
+.comp-row .cname .nm{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp-row .cscore{font-family:var(--mono);font-size:16px;font-weight:600;text-align:right;color:var(--ink)}
+.stackbar{display:flex;height:22px;border-radius:6px;overflow:hidden;background:rgba(148,163,184,.06);position:relative}
+.stackbar .seg{height:100%;position:relative;transition:filter .15s;min-width:2px}
+.stackbar .seg:hover{filter:brightness(1.18)}
+.stackbar .seg span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:10.5px;
+  font-weight:600;color:rgba(11,15,20,.85)}
+.stackbar .track-max{position:absolute;right:0;top:0;bottom:0;width:1px;background:var(--line-strong)}
+
+/* ============ ARCHETYPE BOARDS ============ */
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:9px;padding:3px;background:var(--panel);gap:2px}
+.toggle button{border:none;background:none;padding:7px 16px;border-radius:6px;font-size:12.5px;font-weight:600;
+  color:var(--ink-dim);display:flex;align-items:center;gap:8px;transition:all .15s}
+.toggle button .sw{width:8px;height:8px;border-radius:2px;opacity:.5;transition:opacity .15s}
+.toggle button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+.toggle button.on .sw{opacity:1}
+.arch-desc{font-size:12px;color:var(--ink-faint);margin:14px 0 16px;display:flex;align-items:center;gap:8px}
+.arch-desc code{font-family:var(--mono);color:var(--ink-dim);background:rgba(148,163,184,.08);padding:2px 7px;border-radius:5px;font-size:11.5px}
+.arch-board{border:1px solid var(--line);border-radius:14px;background:var(--card-2);overflow:hidden}
+.arow{display:grid;grid-template-columns:34px 1fr 120px 150px;gap:14px;align-items:center;padding:13px 18px;border-bottom:1px solid var(--line-soft)}
+.arow:last-child{border-bottom:none}
+.arow.thin{opacity:.5}
+.arow .arank{font-family:var(--mono);color:var(--ink-faint);font-size:13px}
+.arow .aname{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.arow .agames{font-family:var(--mono);font-size:12px;color:var(--ink-dim);text-align:right}
+.arow .apct{display:flex;align-items:center;gap:10px;justify-content:flex-end}
+.arow .apct .ptrack{width:78px;height:6px;border-radius:3px;background:rgba(148,163,184,.12);overflow:hidden}
+.arow .apct .ptrack i{display:block;height:100%;border-radius:3px}
+.arow .apct .pv{font-family:var(--mono);font-size:13px;color:var(--ink);width:44px;text-align:right}
+
+/* ============ METHODOLOGY ============ */
+.method{border-top:1px solid var(--line);background:var(--panel);margin-top:20px}
+.method .wrap{padding:42px 28px 56px}
+.formula{font-family:var(--mono);font-size:15px;line-height:1.9;color:var(--ink-dim);
+  border:1px solid var(--line);border-radius:12px;padding:20px 22px;background:var(--card-2);margin:18px 0 22px;overflow-x:auto}
+.formula b{color:var(--ink)}
+.formula .w-win{color:var(--win)} .formula .w-con{color:var(--contrib)} .formula .w-kp{color:var(--kp)}
+.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:8px}
+.mcol h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);font-weight:600;margin:0 0 9px}
+.mcol p{font-size:12.5px;color:var(--ink-dim);margin:0 0 8px;line-height:1.6}
+.mcol code{font-family:var(--mono);color:var(--accent);font-size:11.5px}
+.method-foot{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:30px;padding-top:22px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-faint)}
+.method-foot .src{display:flex;align-items:center;gap:8px}
+
+footer.page{padding:26px 0;text-align:center;font-size:11.5px;color:var(--ink-faint)}
+
+@media (max-width:880px){
+  .podium{grid-template-columns:1fr;gap:10px}
+  .pod.p1{order:-1}
+  .strip{grid-template-columns:1fr 1fr}
+  .detail-inner{grid-template-columns:1fr}
+  .comp-row{grid-template-columns:130px 1fr 52px;gap:12px}
+  .nav{display:none}
+  .sec-head .note{display:none}
+  .hero h1{font-size:26px}
+  .arow{grid-template-columns:28px 1fr 90px;}
+  .arow .agames{display:none}
+  .method-grid{grid-template-columns:1fr}
+  .wrap{padding:0 18px}
+  thead th.hide-sm,tbody td.hide-sm{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <div class="mark"></div>
+      <div class="name">ARAM Power Rankings<span class="sub" id="brandGroup">—</span></div>
+    </div>
+    <nav class="nav">
+      <a href="#leaderboard">Leaderboard</a>
+      <a href="#composition">Composition</a>
+      <a href="#archetypes">Archetypes</a>
+      <a href="#distribution">Distribution</a>
+      <a href="#methodology">Methodology</a>
+      <a href="report-card.html" class="nav-alt">성적표 ↗</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Snapshot · Power Rankings</div>
+    <h1 id="groupName">—</h1>
+    <div class="meta" id="heroMeta"></div>
+    <div class="strip" id="statStrip"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ LEADERBOARD ============ -->
+  <section id="leaderboard">
+    <div class="sec-head">
+      <h2><span class="idx">01</span>Leaderboard</h2>
+      <div class="note">Ranked by composite <b>rankScore</b>. Click any row for detail. Sub-10-game players are shown as provisional below.</div>
+    </div>
+    <div class="podium" id="podium"></div>
+    <div class="board">
+      <table>
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="prov-band" id="provBand"></div>
+  </section>
+
+  <!-- ============ COMPOSITION ============ -->
+  <section id="composition">
+    <div class="sec-head">
+      <h2><span class="idx">02</span>Score Composition</h2>
+      <div class="note">Every score decomposes into three weighted parts that sum to the total. The teal contribution band carries the most weight.</div>
+    </div>
+    <div class="legend" id="compLegend"></div>
+    <div class="comp" id="comp"></div>
+  </section>
+
+  <!-- ============ ARCHETYPES ============ -->
+  <section id="archetypes">
+    <div class="sec-head">
+      <h2><span class="idx">03</span>Per-Archetype Boards</h2>
+      <div class="note">Each player judged by the metric that fits the role they played, ranked within that archetype. Thin samples are dimmed.</div>
+    </div>
+    <div class="toggle" id="archToggle"></div>
+    <div class="arch-desc" id="archDesc"></div>
+    <div class="arch-board" id="archBoard"></div>
+  </section>
+
+  <!-- ============ DISTRIBUTION ============ -->
+  <section id="distribution">
+    <div class="sec-head">
+      <h2><span class="idx">04</span>Distribution</h2>
+      <div class="note">Each metric drawn as the group's distribution; expand a player on the leaderboard to mark where their average falls. Share metrics are compared within the player's role only.</div>
+    </div>
+    <div class="note" style="text-align:left">Open any leaderboard row to see that player's metric distributions in the detail panel.</div>
+  </section>
+</main>
+
+<!-- ============ METHODOLOGY ============ -->
+<footer class="method" id="methodology">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><span class="idx">05</span>Methodology</h2>
+    </div>
+    <div class="formula" id="formula"></div>
+    <div class="method-grid">
+      <div class="mcol">
+        <h4>The three parts</h4>
+        <p><b style="color:var(--win)">Win points</b> — your win rate scaled to a 40-point ceiling.</p>
+        <p><b style="color:var(--contrib)">Contribution points</b> — your mean contribution <em>percentile</em>, scaled to 45. Each game is judged by the metric that fits the champion's role, then ranked within that role.</p>
+        <p><b style="color:var(--kp)">Kill-participation points</b> — your average kill participation, scaled to 15.</p>
+      </div>
+      <div class="mcol">
+        <h4>Contribution by archetype</h4>
+        <p><code>Carry</code> → share of team damage dealt.</p>
+        <p><code>Tank</code> → share of team damage taken.</p>
+        <p><code>Enchanter</code> → share of team healing + shielding.</p>
+        <p>A game only counts toward the archetype that best matched the champion played.</p>
+      </div>
+      <div class="mcol">
+        <h4>Eligibility</h4>
+        <p>Players need <code>≥ 10 games</code> in the window to receive a ranked score.</p>
+        <p>Fewer than 10 games are shown as <b style="color:var(--amber)">provisional</b> — listed but not ranked, because the sample is too thin to trust.</p>
+        <p>Within archetype boards, thin buckets are dimmed for the same reason.</p>
+      </div>
+    </div>
+    <div class="method-foot">
+      <div class="src"><span class="chip accent"><span class="dot"></span>Data source</span> Riot Games API (Match-V5) · ARAM queue only</div>
+      <div class="src" id="windowFoot"></div>
+    </div>
+  </div>
+</footer>
+<footer class="page">A one-time snapshot · figures are illustrative mock data · not affiliated with Riot Games.</footer>
+
+<script src="snapshot.js"></script>
+<script>
+
+
+
+/* ---------- palette / helpers ---------- */
+const C = {win:'#5e84c4', contrib:'#3fb3a8', kp:'#86b6c7'};
+const ARCH = {
+  carry:    {label:'Carry',     color:'#c98b6b', metric:'team damage share',          field:'teamDamagePct'},
+  tank:     {label:'Tank',      color:'#7d8bc4', metric:'damage-taken share',         field:'damageTakenPct'},
+  enchanter:{label:'Enchanter', color:'#5fb39a', metric:'heal + shield share',        field:'healShieldPct'}
+};
+const pct = (x,d=1)=> (x*100).toFixed(d)+'%';
+const one = (x)=> x.toFixed(1);
+const esc = (s)=> String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function splitId(id){const i=id.indexOf('#'); return i<0?[id,'']:[id.slice(0,i),id.slice(i)];}
+/* ---------- distribution metric defs + math ---------- */
+const mean = a => a.length ? a.reduce((s,x)=>s+x,0)/a.length : 0;
+const KDE_SAMPLES = 64;
+// Gaussian-kernel KDE. `bounded` clamps the eval domain to [0,1] and reflects
+// mass across BOTH bounds (0 and 1), since these metrics are genuine [0,1]
+// shares/rates — kp, gameScore and enchanter healShieldPct all reach toward 1,
+// so a one-sided reflection would truncate the upper tail.
+function kde(values, bounded){
+  const v = values.filter(Number.isFinite), n = v.length;
+  if(!n) return {pts:[], maxY:1, lo:0, hi:1};
+  const mu = mean(v);
+  let sd = Math.sqrt(mean(v.map(x=>(x-mu)*(x-mu)))) || 1e-6;
+  let h = 1.06 * sd * Math.pow(n, -1/5); if(h < 1e-6) h = 1e-6;
+  let lo, hi;
+  if(bounded){ lo = 0; hi = 1; }
+  else { lo = Math.min(...v) - 3*h; hi = Math.max(...v) + 3*h;
+         if(hi - lo < 1e-6){ lo -= .5; hi += .5; } }
+  const K = u => Math.exp(-.5*u*u) / Math.sqrt(2*Math.PI);
+  const pts = []; let maxY = 0;
+  for(let i=0;i<KDE_SAMPLES;i++){
+    const x = lo + (hi-lo)*i/(KDE_SAMPLES-1);
+    let y = 0;
+    for(const xi of v){
+      y += K((x-xi)/h);
+      if(bounded){ y += K((x-(-xi))/h); y += K((x-(2-xi))/h); }
+    }
+    y /= (n*h); pts.push({x,y}); if(y>maxY) maxY = y;
+  }
+  return {pts, maxY: maxY||1, lo, hi};
+}
+// Percentile of `m` within `pool` (0..100). Pass a pool that EXCLUDES the
+// player's own games to avoid self-inclusion bias.
+function percentileOf(pool, m){
+  if(!pool.length) return 0;
+  return Math.round(pool.filter(x=>x<m).length / pool.length * 100);
+}
+// Distribution metric definitions. `facet` (when set) restricts the pool to
+// games of that archetype; share metrics are role-conditioned, KP/KDA/score
+// pool all games.
+const DIST_METRICS = [
+  {key:'kp',    label:'Kill participation', color:C.kp,                field:'kp',            bounded:true,  facet:null,        fmt:x=>pct(x,0)},
+  {key:'kda',   label:'KDA',                color:C.win,              field:'kda',           bounded:false, facet:null,        fmt:x=>x.toFixed(1)},
+  {key:'score', label:'Game score',         color:C.contrib,          field:'gameScore',     bounded:true,  facet:null,        fmt:x=>x.toFixed(2)},
+  {key:'dmg',   label:'Team damage share',  color:ARCH.carry.color,   field:'teamDamagePct', bounded:true,  facet:'carry',     fmt:x=>pct(x,0)},
+  {key:'tank',  label:'Damage-taken share', color:ARCH.tank.color,    field:'damageTakenPct',bounded:true,  facet:'tank',      fmt:x=>pct(x,0)},
+  {key:'heal',  label:'Heal + shield share',color:ARCH.enchanter.color,field:'healShieldPct',bounded:true,  facet:'enchanter', fmt:x=>pct(x,0)},
+];
+const DIST_MARK = '#e9eff6';   // marker line/label color (dark theme)
+function fmtDate(s){const d=new Date(s+'T00:00:00Z');return d.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});}
+function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000);}
+
+/* deterministic avatar from profileIconId */
+function avatar(p, big){
+  const [name]=splitId(p.riotId);
+  const h=(p.profileIconId*47)%360;
+  const c1=`hsl(${h} 42% 58%)`, c2=`hsl(${(h+38)%360} 46% 40%)`;
+  const cls = big?'av lg':'av';
+  return `<div class="${cls}" style="background:linear-gradient(140deg,${c1},${c2})">${esc(name[0]||'?').toUpperCase()}</div>`;
+}
+function atag(a){const A=ARCH[a];return `<span class="atag"><span class="sw" style="background:${A.color}"></span>${A.label}</span>`;}
+
+const ranked = SNAPSHOT.players.filter(p=>!p.provisional).sort((a,b)=>b.rankScore-a.rankScore);
+const provisional = SNAPSHOT.players.filter(p=>p.provisional).sort((a,b)=>b.rankScore-a.rankScore);
+const maxScore = Math.max(...ranked.map(p=>p.rankScore));
+
+/* ---------- header ---------- */
+document.getElementById('brandGroup').textContent = SNAPSHOT.group;
+document.getElementById('groupName').textContent = SNAPSHOT.group;
+const W = SNAPSHOT.window;
+document.getElementById('heroMeta').innerHTML = `
+  <span class="chip accent"><span class="dot"></span>${W.queue}</span>
+  <span class="chip">Snapshot <b>${fmtDate(SNAPSHOT.generatedAt)}, 2026</b></span>
+  <span class="chip">Window <b>${fmtDate(W.from)} – ${fmtDate(W.to)}</b></span>
+  <span class="chip">Patch <b>${W.patch}</b></span>`;
+const spanDays = daysBetween(W.from, W.to);
+document.getElementById('statStrip').innerHTML = `
+  <div class="cell"><div class="k">Members ranked</div><div class="v num">${ranked.length}<small>+ ${provisional.length} provisional</small></div></div>
+  <div class="cell"><div class="k">Games analysed</div><div class="v num">${SNAPSHOT.totalGames}</div></div>
+  <div class="cell"><div class="k">Play span</div><div class="v num">${spanDays}<small>days</small></div></div>
+  <div class="cell"><div class="k">Queue</div><div class="v">${W.queue}<small>Howling Abyss</small></div></div>`;
+document.getElementById('windowFoot').innerHTML =
+  `Window: ${fmtDate(W.from)} – ${fmtDate(W.to)}, patch ${W.patch} · minimum ${SNAPSHOT.minGames} games to rank`;
+
+/* ---------- podium ---------- */
+document.getElementById('podium').innerHTML = ranked.slice(0,3).map((p,i)=>{
+  const [name,tag]=splitId(p.riotId);
+  const rankClass = i===0?'p1':'';
+  return `<div class="pod ${rankClass}" data-jump="${esc(p.riotId)}">
+    <div class="crown num">#${i+1}</div>
+    <div class="who">${avatar(p,true)}<div class="name">${esc(name)}<span class="tag">${esc(tag)}</span></div></div>
+    <div class="score num">${one(p.rankScore)}<span class="of"> /100</span></div>
+    <div class="pod-stats">
+      <span><span class="num">${p.games}</span> games</span>
+      <span><span class="num">${pct(p.winRate,0)}</span> WR</span>
+      <span>${atag(p.mostPlayedArchetype)}</span>
+    </div>
+  </div>`;
+}).join('');
+
+/* ---------- sortable table ---------- */
+const COLS = [
+  {key:'rank',  label:'#',     cls:'l',   sortable:false},
+  {key:'riotId',label:'Player',cls:'l',   sortable:true},
+  {key:'rankScore', label:'Score', cls:'', sortable:true},
+  {key:'games', label:'Games', cls:'hide-sm', sortable:true},
+  {key:'winRate', label:'Win %', cls:'', sortable:true},
+  {key:'avgKda', label:'KDA', cls:'hide-sm', sortable:true},
+  {key:'avgKillParticipation', label:'KP %', cls:'', sortable:true},
+  {key:'arch', label:'Most played', cls:'hide-sm', sortable:false},
+  {key:'chev', label:'', cls:'', sortable:false}
+];
+let sort = {key:'rankScore', dir:-1};
+const openRows = new Set();
+
+function renderHead(){
+  document.getElementById('thead').innerHTML = COLS.map(c=>{
+    const sorted = c.sortable && sort.key===c.key;
+    const arrow = sorted ? (sort.dir<0?'▼':'▲') : '';
+    return `<th class="${c.cls} ${sorted?'sorted':''}" data-sort="${c.sortable?c.key:''}">${c.label}<span class="arrow">${arrow}</span></th>`;
+  }).join('');
+  document.querySelectorAll('#thead th[data-sort]').forEach(th=>{
+    const k=th.getAttribute('data-sort'); if(!k)return;
+    th.addEventListener('click',()=>{
+      if(sort.key===k) sort.dir*=-1; else {sort.key=k; sort.dir = (k==='riotId')?1:-1;}
+      renderHead(); renderBody();
+    });
+  });
+}
+function sortedRanked(){
+  const arr=[...ranked];
+  arr.sort((a,b)=>{
+    let av=a[sort.key], bv=b[sort.key];
+    if(sort.key==='riotId'){return av.localeCompare(bv)*sort.dir;}
+    return (av-bv)*sort.dir;
+  });
+  return arr;
+}
+function renderBody(){
+  const arr=sortedRanked();
+  const baseRankByScore = {};
+  [...ranked].sort((a,b)=>b.rankScore-a.rankScore).forEach((p,i)=>baseRankByScore[p.riotId]=i+1);
+  const tb=document.getElementById('tbody'); tb.innerHTML='';
+  arr.forEach(p=>{
+    const [name,tag]=splitId(p.riotId);
+    const rk=baseRankByScore[p.riotId];
+    const isOpen=openRows.has(p.riotId);
+    const wrHi = p.winRate>=0.55, wrLo = p.winRate<0.5;
+    const tr=document.createElement('tr');
+    tr.className='row'+(isOpen?' open':'');
+    tr.dataset.id=p.riotId;
+    tr.innerHTML=`
+      <td class="l rank-cell"><span class="${rk<=3?'medal':''}">${rk}</span></td>
+      <td class="l"><div class="player-cell">${avatar(p)}<div class="nm">${esc(name)}<span class="tag">${esc(tag)}</span></div></div></td>
+      <td><span class="score-cell">${one(p.rankScore)}<span class="bar"><i style="width:${p.rankScore/maxScore*100}%"></i></span></span></td>
+      <td class="num hide-sm">${p.games}</td>
+      <td class="wr ${wrHi?'hi':''}${wrLo?'lo':''}">${pct(p.winRate,1)}</td>
+      <td class="num hide-sm">${p.avgKda.toFixed(2)}</td>
+      <td class="num">${pct(p.avgKillParticipation,1)}</td>
+      <td class="l hide-sm">${atag(p.mostPlayedArchetype)}</td>
+      <td><span class="chev">▶</span></td>`;
+    tr.addEventListener('click',()=>toggleRow(p.riotId));
+    tb.appendChild(tr);
+    // detail row
+    const dr=document.createElement('tr');
+    dr.className='detail-row'+(isOpen?' open':'');
+    dr.dataset.detail=p.riotId;
+    dr.innerHTML=`<td colspan="${COLS.length}"><div class="detail">${isOpen?detailHTML(p):''}</div></td>`;
+    tb.appendChild(dr);
+  });
+}
+function toggleRow(id){
+  if(openRows.has(id)) openRows.delete(id); else openRows.add(id);
+  renderBody();
+}
+
+/* ---------- player detail ---------- */
+function sparkline(log){
+  const data=[...log].reverse(); // chronological
+  const n=data.length, w=300, h=72, pad=6;
+  const xs=i=> pad + i*(w-2*pad)/(n-1||1);
+  const ys=v=> h-pad - v*(h-2*pad);
+  const pts=data.map((g,i)=>`${xs(i).toFixed(1)},${ys(g.gameScore).toFixed(1)}`).join(' ');
+  const area=`${pad},${h-pad} ${pts} ${(w-pad)},${h-pad}`;
+  const dots=data.map((g,i)=>`<circle cx="${xs(i).toFixed(1)}" cy="${ys(g.gameScore).toFixed(1)}" r="${g.win?2.6:2}" fill="${g.win?C.contrib:'#5f6e7d'}"/>`).join('');
+  const last=data[n-1];
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none">
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${C.contrib}" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="${C.contrib}" stop-opacity="0"/></linearGradient></defs>
+    <polygon points="${area}" fill="url(#sg)"/>
+    <polyline points="${pts}" fill="none" stroke="${C.contrib}" stroke-width="1.6" stroke-linejoin="round"/>
+    ${dots}
+  </svg>`;
+}
+function donut(p){
+  const order=['carry','tank','enchanter'].filter(k=>p.archetypes[k]&&p.archetypes[k].games>0);
+  const total=order.reduce((s,k)=>s+p.archetypes[k].games,0);
+  const R=34, sw=11, cx=42, cy=42, circ=2*Math.PI*R;
+  let off=0; const segs=order.map(k=>{
+    const frac=p.archetypes[k].games/total;
+    const seg=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${ARCH[k].color}" stroke-width="${sw}"
+      stroke-dasharray="${(frac*circ).toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-off*circ).toFixed(2)}"
+      transform="rotate(-90 ${cx} ${cy})" stroke-linecap="butt"/>`;
+    off+=frac; return seg;
+  }).join('');
+  const legend=order.map(k=>{
+    const g=p.archetypes[k];
+    return `<div class="li"><span class="sw" style="background:${ARCH[k].color}"></span>${ARCH[k].label}
+      <span class="num">${g.games}g · ${pct(g.meanContribPct,0)}</span></div>`;
+  }).join('');
+  return `<div class="donut-wrap">
+    <svg width="84" height="84" viewBox="0 0 84 84">
+      <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="rgba(148,163,184,.10)" stroke-width="${sw}"/>
+      ${segs}
+      <text x="${cx}" y="${cy-2}" text-anchor="middle" font-family="var(--mono)" font-size="15" font-weight="600" fill="#e9eff6">${p.games}</text>
+      <text x="${cx}" y="${cy+11}" text-anchor="middle" font-family="var(--mono)" font-size="8" fill="#5f6e7d">GAMES</text>
+    </svg>
+    <div class="donut-legend">${legend}</div>
+  </div>`;
+}
+function distCurve(p, m){
+  const all = SNAPSHOT.games.filter(g => !m.facet || g.archetype === m.facet);
+  const mine = all.filter(g => g.riotId === p.riotId).map(g => g[m.field]);
+  const others = all.filter(g => g.riotId !== p.riotId).map(g => g[m.field]);
+  const pool = all.map(g => g[m.field]);
+  if(mine.length === 0 || pool.length < 4){
+    return `<div class="kde-card empty"><div class="kde-head"><span>${m.label}</span>
+      <span class="kde-p">—</span></div><div class="kde-na">no games</div></div>`;
+  }
+  const pMean = mean(mine);
+  const {pts, maxY, lo, hi} = kde(pool, m.bounded);
+  const w=300, h=88, pad=6, base=h-pad;
+  const X = x => pad + (x-lo)/((hi-lo)||1) * (w-2*pad);
+  const Y = y => base - y/maxY * (h-2*pad-10); // -10 reserves top headroom for the mean label
+  const line = pts.map(d=>`${X(d.x).toFixed(1)},${Y(d.y).toFixed(1)}`).join(' ');
+  const area = `${X(lo).toFixed(1)},${base} ${line} ${X(hi).toFixed(1)},${base}`;
+  const mx = X(Math.max(lo, Math.min(hi, pMean)));
+  const pctile = percentileOf(others, pMean);
+  const gid = 'kdeg-'+m.key;
+  const right = mx > w*0.62, thin = pool.length < 20; // flip label left when marker is near the right edge
+  return `<div class="kde-card${thin?' thin':''}">
+    <div class="kde-head"><span>${m.label}</span><span class="kde-p">P${pctile} · ${m.fmt(pMean)}</span></div>
+    <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none">
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${m.color}" stop-opacity="0.22"/>
+        <stop offset="1" stop-color="${m.color}" stop-opacity="0"/></linearGradient></defs>
+      <polygon points="${area}" fill="url(#${gid})"/>
+      <polyline points="${line}" fill="none" stroke="${m.color}" stroke-width="1.6" stroke-linejoin="round"/>
+      <line x1="${mx.toFixed(1)}" y1="${(pad+10).toFixed(1)}" x2="${mx.toFixed(1)}" y2="${base}"
+        stroke="${DIST_MARK}" stroke-width="1.2" stroke-dasharray="3 2.5" opacity="0.85"/>
+      <text x="${(mx + (right?-4:4)).toFixed(1)}" y="${(pad+8).toFixed(1)}"
+        text-anchor="${right?'end':'start'}" font-family="var(--mono)" font-size="9"
+        fill="${DIST_MARK}">${m.fmt(pMean)}</text>
+    </svg></div>`;
+}
+function distSection(p){
+  return `<div class="det-block" style="grid-column:1/-1">
+    <div class="lbl">Metric distributions · marker = player mean · P = percentile vs group</div>
+    <div class="kde-grid">${DIST_METRICS.map(m=>distCurve(p,m)).join('')}</div>
+  </div>`;
+}
+function detailHTML(p){
+  const best=[...p.gameLog].sort((a,b)=>b.gameScore-a.gameScore)[0];
+  const scores=p.gameLog.map(g=>g.gameScore);
+  const lo=Math.min(...scores), hi=Math.max(...scores);
+  const [bn,bt]=splitId(p.riotId);
+  return `<div class="detail-inner">
+    <div class="det-block">
+      <div class="lbl">Game-score trend · last ${p.gameLog.length} games</div>
+      <div class="spark-wrap">${sparkline(p.gameLog)}
+        <div class="spark-meta"><span>oldest</span><span>low ${lo.toFixed(2)} · high ${hi.toFixed(2)}</span><span>newest</span></div>
+      </div>
+      <div class="metrics" style="margin-top:12px">
+        <div class="m"><div class="mk">Avg KDA</div><div class="mv">${p.avgKda.toFixed(2)}</div></div>
+        <div class="m"><div class="mk">Kill participation</div><div class="mv">${pct(p.avgKillParticipation,1)}</div></div>
+        <div class="m"><div class="mk">Win rate</div><div class="mv">${pct(p.winRate,1)}</div></div>
+        <div class="m"><div class="mk">Record</div><div class="mv">${p.wins}–${p.losses}</div></div>
+      </div>
+    </div>
+    <div class="det-block">
+      <div class="lbl">Archetype distribution</div>
+      ${donut(p)}
+    </div>
+    <div class="det-block">
+      <div class="lbl">Best game in window</div>
+      <div class="bestgame">
+        <div class="bg-top"><div class="t">${esc(best.champion)} · ${atag(best.archetype)}</div>
+          <span class="res ${best.win?'W':'L'}">${best.win?'WIN':'LOSS'}</span></div>
+        <div class="bg-stats">
+          <span>Score <span class="num">${best.gameScore.toFixed(2)}</span></span>
+          <span>KDA <span class="num">${best.kda.toFixed(1)}</span></span>
+          <span>KP <span class="num">${pct(best.killParticipation,0)}</span></span>
+        </div>
+        <div style="margin-top:9px;font-size:11px;color:var(--ink-faint)">${fmtDate(best.date)} · ${ARCH[best.archetype].metric} ${pct(best[ARCH[best.archetype].field],0)}</div>
+      </div>
+      <div class="metrics" style="margin-top:12px;grid-template-columns:1fr">
+        <div class="m"><div class="mk">Composite score</div><div class="mv" style="color:var(--accent)">${one(p.rankScore)} <span style="font-size:12px;color:var(--ink-faint)">/100</span></div></div>
+      </div>
+    </div>
+    ${distSection(p)}
+  </div>`;
+}
+
+/* ---------- provisional band ---------- */
+document.getElementById('provBand').innerHTML = provisional.length ? `
+  <div class="ph"><span class="pdot"></span>Provisional · fewer than ${SNAPSHOT.minGames} games — not ranked</div>
+  <table><tbody>${provisional.map(p=>{
+    const [name,tag]=splitId(p.riotId);
+    return `<tr class="row" data-id="${esc(p.riotId)}">
+      <td class="l rank-cell" style="color:var(--amber)">—</td>
+      <td class="l"><div class="player-cell">${avatar(p)}<div class="nm">${esc(name)}<span class="tag">${esc(tag)}</span></div></div></td>
+      <td><span class="score-cell" style="color:var(--ink-dim)">${one(p.rankScore)}</span></td>
+      <td class="num hide-sm">${p.games}</td>
+      <td class="wr">${pct(p.winRate,1)}</td>
+      <td class="num hide-sm">${p.avgKda.toFixed(2)}</td>
+      <td class="num">${pct(p.avgKillParticipation,1)}</td>
+      <td class="l hide-sm"><span class="flag">▲ ${p.games}/${SNAPSHOT.minGames} games</span></td>
+      <td><span class="chev">▶</span></td>
+    </tr>
+    <tr class="detail-row" data-detail="${esc(p.riotId)}"><td colspan="${COLS.length}"><div class="detail"></div></td></tr>`;
+  }).join('')}</tbody></table>` : '';
+
+/* provisional expand */
+document.querySelectorAll('#provBand tr.row').forEach(tr=>{
+  tr.addEventListener('click',()=>{
+    const id=tr.dataset.id;
+    const dr=document.querySelector(`#provBand tr[data-detail="${CSS.escape(id)}"]`);
+    const p=provisional.find(x=>x.riotId===id);
+    const isOpen=tr.classList.toggle('open');
+    dr.classList.toggle('open',isOpen);
+    dr.querySelector('.detail').innerHTML = isOpen?detailHTML(p):'';
+  });
+});
+
+/* podium jump → open row */
+document.querySelectorAll('.pod[data-jump]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const id=el.dataset.jump;
+    if(!openRows.has(id)) openRows.add(id);
+    renderBody();
+    const row=document.querySelector(`#tbody tr.row[data-id="${CSS.escape(id)}"]`);
+    if(row){const y=row.getBoundingClientRect().top+window.scrollY-90; window.scrollTo({top:y,behavior:'smooth'});}
+  });
+});
+
+/* ---------- composition ---------- */
+const wts=SNAPSHOT.weights;
+document.getElementById('compLegend').innerHTML = `
+  <div class="li"><span class="sw" style="background:${C.win}"></span><b>Win</b><span class="w">×${wts.win}</span></div>
+  <div class="li"><span class="sw" style="background:${C.contrib}"></span><b>Contribution</b><span class="w">×${wts.contribution}</span></div>
+  <div class="li"><span class="sw" style="background:${C.kp}"></span><b>Kill participation</b><span class="w">×${wts.killParticipation}</span></div>
+  <div class="li" style="margin-left:auto;color:var(--ink-faint)">bars scaled to 100 · hover a band for its points</div>`;
+document.getElementById('comp').innerHTML = ranked.map(p=>{
+  const [name,tag]=splitId(p.riotId);
+  const c=p.components;
+  const seg=(v,col,lab)=>`<div class="seg" style="width:${v}%;background:${col}" title="${lab}: ${one(v)} pts"><span>${v>=6?one(v):''}</span></div>`;
+  return `<div class="comp-row">
+    <div class="cname">${avatar(p)}<div class="nm">${esc(name)}<span class="tag" style="font-family:var(--mono);font-size:10px;color:var(--ink-faint)">${esc(tag)}</span></div></div>
+    <div class="stackbar">
+      ${seg(c.winPoints,C.win,'Win')}
+      ${seg(c.contribPoints,C.contrib,'Contribution')}
+      ${seg(c.kpPoints,C.kp,'Kill participation')}
+      <div class="track-max"></div>
+    </div>
+    <div class="cscore">${one(p.rankScore)}</div>
+  </div>`;
+}).join('');
+
+/* ---------- archetype boards ---------- */
+let curArch='carry';
+const THIN=8;
+function renderArchToggle(){
+  document.getElementById('archToggle').innerHTML = Object.keys(ARCH).map(k=>
+    `<button data-arch="${k}" class="${k===curArch?'on':''}"><span class="sw" style="background:${ARCH[k].color}"></span>${ARCH[k].label}</button>`
+  ).join('');
+  document.querySelectorAll('#archToggle button').forEach(b=>b.addEventListener('click',()=>{curArch=b.dataset.arch;renderArchToggle();renderArchBoard();}));
+}
+function renderArchBoard(){
+  const A=ARCH[curArch];
+  document.getElementById('archDesc').innerHTML =
+    `<span>Ranked by mean contribution percentile in <b style="color:${A.color}">${A.label}</b> games — judged on <code>${A.metric}</code>.</span>`;
+  const list=SNAPSHOT.players.filter(p=>p.archetypes[curArch]&&p.archetypes[curArch].games>0)
+    .map(p=>({p,g:p.archetypes[curArch]}))
+    .sort((a,b)=>b.g.meanContribPct-a.g.meanContribPct);
+  const maxPct=Math.max(...list.map(x=>x.g.meanContribPct),0.01);
+  document.getElementById('archBoard').innerHTML = list.map((x,i)=>{
+    const [name,tag]=splitId(x.p.riotId);
+    const thin=x.g.games<THIN;
+    return `<div class="arow ${thin?'thin':''}">
+      <div class="arank">${i+1}</div>
+      <div class="aname">${avatar(x.p)}<span>${esc(name)}</span>${thin?`<span class="flag" style="margin-left:6px">▲ thin (${x.g.games}g)</span>`:''}</div>
+      <div class="agames">${x.g.games} game${x.g.games===1?'':'s'}</div>
+      <div class="apct"><span class="ptrack"><i style="width:${x.g.meanContribPct/maxPct*100}%;background:${A.color}"></i></span><span class="pv">${pct(x.g.meanContribPct,0)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- formula ---------- */
+document.getElementById('formula').innerHTML =
+  `<b>rankScore</b> = <span class="w-win">${wts.win*100} · winRate</span> &nbsp;+&nbsp; <span class="w-con">${wts.contribution*100} · meanContributionPercentile</span> &nbsp;+&nbsp; <span class="w-kp">${wts.killParticipation*100} · meanKillParticipation</span><br>
+   <span style="color:var(--ink-faint);font-size:13px">= winPoints (≤ ${wts.win*100}) &nbsp;+&nbsp; contribPoints (≤ ${wts.contribution*100}) &nbsp;+&nbsp; kpPoints (≤ ${wts.killParticipation*100}) &nbsp;→&nbsp; out of 100</span>`;
+
+/* ---------- init ---------- */
+renderHead(); renderBody(); renderArchToggle(); renderArchBoard();
+
+/* smooth anchor nav */
+document.querySelectorAll('.nav a:not(.nav-alt)').forEach(a=>a.addEventListener('click',e=>{
+  e.preventDefault();const t=document.querySelector(a.getAttribute('href'));
+  if(t){const y=t.getBoundingClientRect().top+window.scrollY-70;window.scrollTo({top:y,behavior:'smooth'});}
+}));
+</script>
+</body>
+</html>

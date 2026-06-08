@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ARAM 전투력 석차 일람표 — 한밤의 협곡 소년단</title>
+<style>
+:root{
+  --board:#3b3327;
+  --board-2:#2c261c;
+  --paper:#efe6cf;
+  --paper-2:#e9ddbf;
+  --ink:#2a241b;
+  --ink-dim:#5a5341;
+  --ink-faint:#8a7c60;
+  --line:#2a241b;
+  --line-soft:#c4b791;
+  --line-hair:#d4c8a6;
+  --line-strong:#2a241b;
+  --red:#b23528;
+  --red-soft:rgba(178,53,40,.10);
+  --win:#3f5e8a;
+  --contrib:#5e7a45;
+  --kp:#9a7634;
+  --accent:#b23528;
+  --accent-soft:rgba(178,53,40,.10);
+  --amber:#9a7634;
+  --amber-soft:rgba(154,118,52,.13);
+  --pos:#5e7a45;
+  --neg:#b23528;
+  --title:"Batang","\BC14\D5D1","BatangChe","Times New Roman",serif;
+  --doc:"Gulim","\AD74\B9BC","Dotum","\B3CB\C6C0","Apple SD Gothic Neo","Courier New",monospace;
+  --mono:"Courier New",ui-monospace,Menlo,Consolas,monospace;
+  --sans:var(--doc);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--doc);
+  color:var(--ink);
+  font-size:14px;line-height:1.5;
+  background-color:var(--board);
+  background-image:
+    radial-gradient(120% 60% at 50% -10%, rgba(0,0,0,.28), transparent 60%),
+    radial-gradient(circle, var(--board-2) 2.6px, transparent 3.4px),
+    radial-gradient(circle, var(--board-2) 2.6px, transparent 3.4px),
+    repeating-linear-gradient(0deg, transparent 0 25px, rgba(120,98,52,.05) 25px 26px),
+    linear-gradient(var(--paper),var(--paper));
+  background-repeat:no-repeat, repeat-y, repeat-y, repeat, no-repeat;
+  background-size:100% 460px, 26px 26px, 26px 26px, 1200px 100%, 1200px 100%;
+  background-position:center top, calc(50% - 586px) 16px, calc(50% + 586px) 16px, center top, center top;
+}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.wrap{max-width:1140px;margin:0 auto;padding:0 44px}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:0}
+button{font-family:inherit;color:inherit;cursor:pointer}
+::selection{background:rgba(178,53,40,.22)}
+
+.topbar{position:sticky;top:0;z-index:40;background:var(--board);border-bottom:3px solid var(--board-2);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:50px;gap:24px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand .mark{width:20px;height:20px;flex:none;background:var(--red);border:2px solid #e7dcc0;transform:rotate(-6deg)}
+.brand .name{font-family:var(--title);font-size:15px;font-weight:700;color:#efe6cf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand .name .sub{display:none}
+.nav{display:flex;gap:4px}
+.nav a{font-size:12px;color:#cabd9b;text-decoration:none;padding:5px 11px;letter-spacing:.04em;border:1px solid transparent;transition:color .12s}
+.nav a:hover{color:#efe6cf;border-color:#6b5f47}
+.nav a.nav-alt{color:var(--red);margin-left:6px}
+.nav a.nav-alt:hover{color:var(--red);border-color:var(--red)}
+
+.hero{padding:40px 0 24px;border-bottom:3px double var(--line)}
+.hero .wrap{position:relative}
+.hero .eyebrow{font-family:var(--mono);font-size:12px;color:var(--red);letter-spacing:.22em;text-transform:uppercase;font-weight:700}
+.hero h1{font-family:var(--title);font-size:38px;margin:8px 0 0;letter-spacing:-.01em;line-height:1.1}
+.hero .meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:var(--ink-dim);border:1.5px solid var(--line);border-radius:0;padding:4px 11px;background:transparent}
+.chip b{color:var(--ink);font-weight:700}
+.chip.accent{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+.chip .dot{width:6px;height:6px;border-radius:0;background:var(--red);transform:rotate(45deg)}
+.hero .wrap::after{content:"\AC80 \C778";position:absolute;top:0;right:2px;width:92px;height:92px;display:grid;place-items:center;text-align:center;font-family:var(--title);font-size:26px;font-weight:700;letter-spacing:.12em;color:var(--red);border:2.5px solid var(--red);border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--paper), inset 0 0 0 3.5px var(--red);transform:rotate(-9deg);opacity:.82}
+
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:22px;border:2px solid var(--line)}
+.strip .cell{padding:13px 16px;border-right:1px solid var(--line-soft)}
+.strip .cell:last-child{border-right:none}
+.strip .k{font-size:11px;color:var(--ink-dim);letter-spacing:.06em;font-weight:700}
+.strip .v{font-family:var(--mono);font-size:25px;margin-top:5px;color:var(--ink);font-weight:700}
+.strip .v small{font-family:var(--doc);font-size:12px;color:var(--ink-dim);margin-left:5px;letter-spacing:0;font-weight:400}
+
+section{padding:40px 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:18px;border-bottom:2px solid var(--line);padding-bottom:9px}
+.sec-head h2{font-family:var(--title);font-size:19px;letter-spacing:0;color:var(--ink);font-weight:700}
+.sec-head h2 .idx{color:var(--paper);background:var(--ink);font-family:var(--mono);font-size:13px;padding:2px 8px;margin-right:12px}
+.sec-head .note{font-size:11.5px;color:var(--ink-dim);max-width:480px;text-align:right;line-height:1.55}
+
+.podium{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:0;align-items:stretch;margin-bottom:24px;border:2px solid var(--line)}
+.pod{padding:18px 16px 16px;position:relative;border-right:1px solid var(--line-soft);background:transparent}
+.pod:last-child{border-right:none}
+.pod.p1{background:repeating-linear-gradient(135deg, rgba(178,53,40,.05) 0 7px, transparent 7px 14px)}
+.pod .crown{position:absolute;top:13px;right:14px;font-family:var(--mono);font-size:13px;letter-spacing:.05em;color:var(--ink-faint);font-weight:700}
+.pod.p1 .crown{color:var(--red)}
+.pod.p1 .crown::after{content:" \2605"}
+.pod .who{display:flex;align-items:center;gap:11px}
+.pod .who .name{font-family:var(--title);font-size:15px;font-weight:700;line-height:1.15}
+.pod .who .name .tag{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-faint);font-weight:400}
+.pod .score{font-family:var(--mono);font-size:46px;font-weight:700;letter-spacing:-.03em;margin:14px 0 2px;line-height:1;color:var(--ink)}
+.pod.p1 .score{color:var(--red)}
+.pod .score .of{font-size:14px;color:var(--ink-faint)}
+.pod .pod-stats{display:flex;gap:13px;margin-top:9px;font-size:11.5px;color:var(--ink-dim)}
+.pod .pod-stats .num{color:var(--ink)}
+
+.av{width:36px;height:36px;flex:none;border:1.5px solid var(--line);border-radius:0;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:14px;color:var(--paper);position:relative;overflow:hidden}
+.av.lg{width:44px;height:44px;font-size:17px}
+
+.atag{display:inline-flex;align-items:center;gap:6px;font-family:var(--doc);font-size:11px;font-weight:700;padding:2px 8px;border:1px solid var(--line);color:var(--ink-dim);background:var(--paper-2)}
+.atag .sw{width:8px;height:8px;border-radius:0}
+
+.board{border:2px solid var(--line)}
+table{width:100%;border-collapse:collapse}
+thead th{font-family:var(--doc);font-size:11px;letter-spacing:.03em;color:var(--paper);font-weight:700;text-align:right;padding:9px 14px;background:var(--ink);cursor:pointer;user-select:none;white-space:nowrap;border-right:1px solid rgba(239,230,207,.18)}
+thead th:last-child{border-right:none}
+thead th.l{text-align:left}
+thead th .arrow{margin-left:5px;font-size:9px;display:inline-block;color:#e8b9a0}
+thead th.sorted{background:var(--red)}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--line-hair);text-align:right;white-space:nowrap;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.row{cursor:pointer;transition:background .1s}
+tbody tr.row:nth-child(4n+1){background:rgba(120,98,52,.04)}
+tbody tr.row:hover{background:rgba(178,53,40,.06)}
+tbody tr.row.open{background:rgba(178,53,40,.08)}
+td.l{text-align:left}
+.rank-cell{font-family:var(--mono);font-size:16px;color:var(--ink-dim);width:42px;font-weight:700}
+.rank-cell .medal{color:var(--red)}
+.player-cell{display:flex;align-items:center;gap:11px}
+.player-cell .nm{font-family:var(--title);font-weight:700;font-size:14px;line-height:1.15}
+.player-cell .nm .tag{display:block;font-size:11px;color:var(--ink-faint);font-family:var(--mono);font-weight:400}
+.score-cell{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)}
+.score-cell .bar{display:inline-block;width:38px;height:8px;background:var(--paper-2);margin-left:9px;vertical-align:middle;position:relative;overflow:hidden;border:1px solid var(--line-soft)}
+.score-cell .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
+.wr{font-family:var(--mono)}
+.wr.hi{color:var(--pos)} .wr.lo{color:var(--neg)}
+.chev{display:inline-block;width:14px;color:var(--ink-faint);transition:transform .15s;font-size:11px}
+tr.open .chev{transform:rotate(90deg);color:var(--red)}
+
+tr.detail-row>td{padding:0;border-bottom:1px solid var(--line)}
+.detail{padding:0 14px;max-height:0;overflow:hidden;transition:max-height .3s ease;background:rgba(120,98,52,.05)}
+tr.detail-row.open .detail{max-height:880px}
+.kde-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.kde-card{border:1px solid var(--line);border-radius:10px;padding:10px 10px 4px;background:rgba(120,98,52,.05)}
+.kde-card.thin{opacity:.62}
+.kde-card.empty{opacity:.4}
+.kde-head{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;letter-spacing:.04em;color:var(--ink-dim);font-weight:700;margin-bottom:2px}
+.kde-head .kde-p{font-family:var(--mono);color:var(--red)}
+.kde-na{font-size:11px;color:var(--ink-dim);padding:18px 0;text-align:center}
+@media(max-width:760px){.kde-grid{grid-template-columns:1fr 1fr}
+  tr.detail-row.open .detail{max-height:1400px}}
+.detail-inner{display:grid;grid-template-columns:1.3fr .9fr 1.1fr;gap:24px;padding:22px 6px 26px}
+.det-block .lbl{font-size:11px;letter-spacing:.04em;color:var(--ink-faint);font-weight:700;margin-bottom:11px;border-bottom:1px dashed var(--line-soft);padding-bottom:5px}
+.spark-wrap{border:1.5px solid var(--line);padding:13px 13px 7px;background:var(--paper)}
+.spark-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-faint);font-family:var(--mono);margin-top:4px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid var(--line)}
+.metrics .m{background:var(--paper);padding:10px 12px;border-right:1px solid var(--line-soft);border-top:1px solid var(--line-soft)}
+.metrics .m:nth-child(-n+2){border-top:none}
+.metrics .m:nth-child(2n){border-right:none}
+.metrics .m .mk{font-size:10px;letter-spacing:.03em;color:var(--ink-faint);font-weight:700}
+.metrics .m .mv{font-family:var(--mono);font-size:18px;margin-top:3px;color:var(--ink);font-weight:700}
+.donut-wrap{display:flex;align-items:center;gap:15px}
+.donut-legend{display:flex;flex-direction:column;gap:7px;font-size:11.5px}
+.donut-legend .li{display:flex;align-items:center;gap:8px;color:var(--ink-dim)}
+.donut-legend .li .sw{width:9px;height:9px;border-radius:0;flex:none}
+.donut-legend .li .num{margin-left:auto;color:var(--ink);font-weight:700}
+.bestgame{border:1.5px solid var(--line);padding:12px 13px;background:var(--paper)}
+.bestgame .bg-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.bestgame .bg-top .t{font-size:12px;font-weight:700}
+.bestgame .bg-top .res{font-family:var(--mono);font-size:11px;font-weight:700;padding:1px 7px;border:1px solid}
+.res.W{color:var(--pos);border-color:var(--pos);background:rgba(94,122,69,.1)}
+.res.L{color:var(--neg);border-color:var(--neg);background:var(--red-soft)}
+.bestgame .bg-stats{display:flex;gap:16px;font-size:11.5px;color:var(--ink-dim)}
+.bestgame .bg-stats .num{color:var(--ink);font-weight:700}
+
+.prov-band{margin-top:0;border:2px dashed var(--red);border-top:none}
+.prov-band .ph{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--line-hair);font-size:11.5px;letter-spacing:.04em;color:var(--red);font-weight:700;background:var(--red-soft)}
+.prov-band .ph .pdot{width:7px;height:7px;border-radius:0;background:var(--red);transform:rotate(45deg)}
+.prov-band table tbody td{color:var(--ink-dim)}
+.flag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--red);font-family:var(--mono);border:1px solid var(--red);padding:1px 6px;background:var(--red-soft);font-weight:700}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:16px}
+.legend .li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-dim)}
+.legend .li .sw{width:12px;height:12px;border-radius:0;flex:none;border:1px solid var(--line)}
+.legend .li b{color:var(--ink);font-weight:700}
+.legend .li .w{color:var(--ink-faint);font-family:var(--mono);font-size:11px}
+.comp{border:2px solid var(--line)}
+.comp-row{display:grid;grid-template-columns:200px 1fr 60px;gap:16px;align-items:center;padding:11px 16px;border-bottom:1px solid var(--line-hair)}
+.comp-row:last-child{border-bottom:none}
+.comp-row:nth-child(2n){background:rgba(120,98,52,.04)}
+.comp-row .cname{display:flex;align-items:center;gap:10px;min-width:0}
+.comp-row .cname .nm{font-family:var(--title);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp-row .cscore{font-family:var(--mono);font-size:16px;font-weight:700;text-align:right;color:var(--ink)}
+.stackbar{display:flex;height:20px;overflow:hidden;background:var(--paper-2);position:relative;border:1.5px solid var(--line)}
+.stackbar .seg{height:100%;position:relative;min-width:2px;border-right:1px solid rgba(42,36,27,.35)}
+.stackbar .seg span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:700;color:rgba(239,230,207,.95)}
+.stackbar .track-max{display:none}
+
+.toggle{display:inline-flex;border:2px solid var(--line);padding:0;background:var(--paper-2)}
+.toggle button{border:none;border-right:1px solid var(--line);background:none;padding:7px 16px;font-size:12px;font-weight:700;color:var(--ink-dim);display:flex;align-items:center;gap:8px;transition:all .1s}
+.toggle button:last-child{border-right:none}
+.toggle button .sw{width:9px;height:9px;border-radius:0;opacity:.45;transition:opacity .1s}
+.toggle button.on{background:var(--ink);color:var(--paper)}
+.toggle button.on .sw{opacity:1}
+.arch-desc{font-size:12px;color:var(--ink-dim);margin:13px 0 14px;display:flex;align-items:center;gap:8px}
+.arch-desc code{font-family:var(--mono);color:var(--ink);background:var(--paper-2);padding:2px 7px;font-size:11.5px;border:1px solid var(--line-soft)}
+.arch-board{border:2px solid var(--line)}
+.arow{display:grid;grid-template-columns:34px 1fr 120px 150px;gap:14px;align-items:center;padding:11px 16px;border-bottom:1px solid var(--line-hair)}
+.arow:last-child{border-bottom:none}
+.arow:nth-child(2n){background:rgba(120,98,52,.04)}
+.arow.thin{opacity:.5}
+.arow .arank{font-family:var(--mono);color:var(--ink-faint);font-size:14px;font-weight:700}
+.arow .aname{display:flex;align-items:center;gap:10px;font-family:var(--title);font-size:13px;font-weight:700}
+.arow .agames{font-family:var(--mono);font-size:12px;color:var(--ink-dim);text-align:right}
+.arow .apct{display:flex;align-items:center;gap:10px;justify-content:flex-end}
+.arow .apct .ptrack{width:78px;height:9px;background:var(--paper-2);overflow:hidden;border:1px solid var(--line-soft)}
+.arow .apct .ptrack i{display:block;height:100%}
+.arow .apct .pv{font-family:var(--mono);font-size:13px;color:var(--ink);width:42px;text-align:right;font-weight:700}
+
+.method{border-top:3px double var(--line);margin-top:18px}
+.method .wrap{padding:38px 44px 50px}
+.formula{font-family:var(--mono);font-size:15px;line-height:1.9;color:var(--ink-dim);border:2px solid var(--line);padding:18px 20px;background:var(--paper-2);margin:16px 0 22px;overflow-x:auto}
+.formula b{color:var(--ink);font-weight:700}
+.formula .w-win{color:var(--win)} .formula .w-con{color:var(--contrib)} .formula .w-kp{color:var(--kp)}
+.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:2px solid var(--line)}
+.mcol{padding:18px 18px;border-right:1px solid var(--line-soft)}
+.mcol:last-child{border-right:none}
+.mcol h4{font-family:var(--title);font-size:14px;color:var(--ink);font-weight:700;margin:0 0 10px;border-bottom:1px dashed var(--line-soft);padding-bottom:6px}
+.mcol p{font-size:12px;color:var(--ink-dim);margin:0 0 8px;line-height:1.65}
+.mcol code{font-family:var(--mono);color:var(--red);font-size:11.5px;font-weight:700}
+.method-foot{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:26px;padding-top:18px;border-top:1px solid var(--line-soft);font-size:11.5px;color:var(--ink-faint)}
+.method-foot .src{display:flex;align-items:center;gap:8px}
+
+footer.page{padding:22px 0 30px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+
+@media (max-width:980px){
+  body{background-size:100% 460px, 26px 26px, 26px 26px, 100% 100%, 100% 100%;background-position:center top, 8px 16px, calc(100% - 8px) 16px, center top, center top}
+  .wrap{padding:0 26px}
+}
+@media (max-width:860px){
+  .podium{grid-template-columns:1fr}
+  .pod{border-right:none;border-bottom:1px solid var(--line-soft)}
+  .pod.p1{order:-1}
+  .strip{grid-template-columns:1fr 1fr}
+  .strip .cell:nth-child(2n){border-right:none}
+  .detail-inner{grid-template-columns:1fr}
+  .comp-row{grid-template-columns:130px 1fr 50px;gap:12px}
+  .nav{display:none}
+  .sec-head{flex-direction:column;align-items:flex-start;gap:6px}
+  .sec-head .note{text-align:left}
+  .hero h1{font-size:27px}
+  .hero .wrap::after{width:72px;height:72px;font-size:20px;top:-4px}
+  .method-grid{grid-template-columns:1fr}
+  .mcol{border-right:none;border-bottom:1px solid var(--line-soft)}
+  .arow{grid-template-columns:28px 1fr 90px}
+  .arow .agames{display:none}
+  thead th.hide-sm,tbody td.hide-sm{display:none}
+}
+
+/* ===== report-card additions ===== */
+.grade{display:inline-grid;place-items:center;width:24px;height:24px;font-family:var(--title);font-weight:700;font-size:14px;border:1.5px solid;line-height:1}
+.grade.su{color:#3f5e8a;border-color:#3f5e8a;background:rgba(63,94,138,.10)}
+.grade.u{color:#5e7a45;border-color:#5e7a45;background:rgba(94,122,69,.10)}
+.grade.mi{color:#5a5341;border-color:#5a5341;background:rgba(90,83,65,.08)}
+.grade.yang{color:#9a7634;border-color:#9a7634;background:rgba(154,118,52,.10)}
+.grade.ga{color:#b23528;border-color:#b23528;background:rgba(178,53,40,.10)}
+td.c,th.c{text-align:center}
+.prov-grade{font-family:var(--doc);font-size:10px;color:var(--red);border:1px dashed var(--red);padding:1px 5px;font-weight:700}
+.pod .pod-stats .pg{display:flex;align-items:center;gap:5px}
+.pod .pod-stats .pg small{font-size:10px;color:var(--ink-faint)}
+.grade-summary{display:flex;flex-wrap:wrap;align-items:stretch;border:2px solid var(--line);border-top:none;font-family:var(--mono);font-size:12px;color:var(--ink-dim)}
+.grade-summary span{padding:8px 14px;border-right:1px solid var(--line-soft);display:flex;align-items:center;gap:6px}
+.grade-summary span:last-child{border-right:none;margin-left:auto;font-family:var(--doc);gap:3px}
+.grade-summary b{color:var(--ink);font-weight:700}
+.teacher-remark{margin:0 6px 18px;padding:11px 14px;border:1px solid var(--red);background:var(--red-soft);color:var(--red);font-size:12.5px;line-height:1.6;display:flex;gap:12px;align-items:flex-start;font-style:italic}
+.teacher-remark .pen{font-family:var(--title);font-weight:700;font-style:normal;white-space:nowrap;border-right:1.5px solid var(--red);padding-right:12px}
+#remarks .remark-box{border:2px solid var(--line);padding:18px 20px 24px;background:var(--paper);position:relative;min-height:98px}
+#remarks .rtext{font-size:13px;line-height:1.85;color:var(--ink);max-width:62ch}
+#remarks .jikin{position:absolute;right:24px;bottom:18px;width:62px;height:62px;display:grid;place-items:center;text-align:center;font-family:var(--title);font-size:13px;font-weight:700;line-height:1.12;color:var(--red);border:2px solid var(--red);border-radius:50%;box-shadow:inset 0 0 0 1px var(--paper),inset 0 0 0 2.5px var(--red);transform:rotate(-7deg);opacity:.82}
+.stamp-row{display:flex;border:2px solid var(--line);border-top:none}
+.stamp-row .box{flex:1;border-right:1px solid var(--line-soft);padding:12px 10px;text-align:center}
+.stamp-row .box:last-child{border-right:none}
+.stamp-row .box .role{font-size:11px;color:var(--ink-dim);font-weight:700;margin-bottom:9px}
+.stamp-row .box .ring{width:52px;height:52px;border:1.5px dashed var(--line-soft);border-radius:50%;margin:0 auto;display:grid;place-items:center;font-size:10px;color:var(--ink-faint);font-family:var(--mono)}
+@media (max-width:860px){#remarks .rtext{max-width:none;padding-right:74px}.grade-summary span:last-child{margin-left:0}}
+
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <div class="mark"></div>
+      <div class="name">ARAM 성적 통지표<span class="sub" id="brandGroup">—</span></div>
+    </div>
+    <nav class="nav">
+      <a href="#leaderboard">석차표</a>
+      <a href="#composition">점수구성</a>
+      <a href="#archetypes">역할별</a>
+      <a href="#distribution">지표분포</a>
+      <a href="#methodology">산출기준</a>
+      <a href="index.html" class="nav-alt">English ↗</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">2026학년도 1학기 · 전투력 성적 통지표</div>
+    <h1 id="groupName">—</h1>
+    <div class="meta" id="heroMeta"></div>
+    <div class="strip" id="statStrip"></div>
+    <div class="grade-summary" id="gradeSummary"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ LEADERBOARD ============ -->
+  <section id="leaderboard">
+    <div class="sec-head">
+      <h2><span class="idx">01</span>교과 성적 · 종합 석차</h2>
+      <div class="note">종합점수(rankScore) 내림차순. 각 행을 누르면 세부내역이 펼쳐짐. 10전 미만은 아래 「유예」 명단에 별도 게재.</div>
+    </div>
+    <div class="podium" id="podium"></div>
+    <div class="board">
+      <table>
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="prov-band" id="provBand"></div>
+  </section>
+
+  <!-- ============ COMPOSITION ============ -->
+  <section id="composition">
+    <div class="sec-head">
+      <h2><span class="idx">02</span>점수 구성 내역</h2>
+      <div class="note">모든 점수는 세 가지 가중항목의 합으로 분해됨. 가운데 「기여」 항목의 배점이 가장 큼.</div>
+    </div>
+    <div class="legend" id="compLegend"></div>
+    <div class="comp" id="comp"></div>
+  </section>
+
+  <!-- ============ ARCHETYPES ============ -->
+  <section id="archetypes">
+    <div class="sec-head">
+      <h2><span class="idx">03</span>역할별 석차</h2>
+      <div class="note">각자 맡은 역할에 맞는 지표로 평가하여 역할 안에서 줄세움. 표본이 적으면 흐리게 표시.</div>
+    </div>
+    <div class="toggle" id="archToggle"></div>
+    <div class="arch-desc" id="archDesc"></div>
+    <div class="arch-board" id="archBoard"></div>
+  </section>
+
+  <section id="remarks">
+    <div class="sec-head">
+      <h2><span class="idx">04</span>종합 의견 및 확인</h2>
+      <div class="note">담임 종합 의견과 확인란. 가정에서 확인 후 서명·날인 바랍니다.</div>
+    </div>
+    <div class="remark-box">
+      <div class="rtext" id="overallRemark"></div>
+      <div class="jikin">한밤<br>협곡<br>校長</div>
+    </div>
+    <div class="stamp-row">
+      <div class="box"><div class="role">담임 확인</div><div class="ring">(인)</div></div>
+      <div class="box"><div class="role">학부모 확인</div><div class="ring">(인)</div></div>
+      <div class="box"><div class="role">본인 확인</div><div class="ring">(인)</div></div>
+    </div>
+  </section>
+
+  <!-- ============ DISTRIBUTION ============ -->
+  <section id="distribution">
+    <div class="sec-head">
+      <h2><span class="idx">05</span>지표 분포</h2>
+      <div class="note">각 지표를 반 전체 분포로 그리고, 석차표에서 학생을 펼치면 본인 평균 위치를 표시합니다. 역할 지표는 같은 역할끼리만 비교합니다.</div>
+    </div>
+    <div class="note" style="text-align:left">석차표의 학생 행을 펼치면 상세 패널에서 해당 학생의 지표 분포를 볼 수 있습니다.</div>
+  </section>
+</main>
+
+<!-- ============ METHODOLOGY ============ -->
+<footer class="method" id="methodology">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><span class="idx">06</span>산출 기준 안내</h2>
+    </div>
+    <div class="formula" id="formula"></div>
+    <div class="method-grid">
+      <div class="mcol">
+        <h4>세 가지 항목</h4>
+        <p><b style="color:var(--win)">승리 점수</b> — 승률을 40점 만점으로 환산.</p>
+        <p><b style="color:var(--contrib)">기여 점수</b> — 평균 기여 <em>백분위</em>를 45점으로 환산. 매 경기 챔피언 역할에 맞는 지표로 채점 후 역할 안에서 줄세움.</p>
+        <p><b style="color:var(--kp)">킬관여 점수</b> — 평균 킬 관여율을 15점으로 환산.</p>
+      </div>
+      <div class="mcol">
+        <h4>역할별 기여 지표</h4>
+        <p><code>딜러</code> → 팀 가한피해 비중.</p>
+        <p><code>탱커</code> → 팀 받은피해 비중.</p>
+        <p><code>서포터</code> → 팀 회복·보호막 비중.</p>
+        <p>각 경기는 챔피언에 가장 맞는 역할 한 곳에만 집계됨.</p>
+      </div>
+      <div class="mcol">
+        <h4>석차 자격</h4>
+        <p>집계기간 내 <code>10전 이상</code>이어야 석차를 부여함.</p>
+        <p>10전 미만은 <b style="color:var(--amber)">유예</b> 처리 — 게재하되 표본이 적어 석차에서 제외.</p>
+        <p>역할별 표에서도 표본이 적으면 같은 이유로 흐리게 표시.</p>
+      </div>
+    </div>
+    <div class="method-foot">
+      <div class="src"><span class="chip accent"><span class="dot"></span>자료 출처</span> Riot Games API (Match-V5) · ARAM 한정</div>
+      <div class="src" id="windowFoot"></div>
+    </div>
+  </div>
+</footer>
+<footer class="page">1회성 사정 자료 · 수치는 예시용 모의 데이터임 · Riot Games와 무관.</footer>
+
+<script src="snapshot.js"></script>
+<script>
+/* ---------- palette / helpers ---------- */
+const C = {win:'#3f5e8a', contrib:'#5e7a45', kp:'#9a7634'};
+const ARCH = {
+  carry:    {label:'\uB51C\uB7EC',     color:'#a8503a', metric:'\uD300 \uD53C\uD574\uB7C9 \uBE44\uC911',          field:'teamDamagePct'},
+  tank:     {label:'\uD0F1\uCEE4',      color:'#3f5e8a', metric:'\uD300 \uBC1B\uC740\uD53C\uD574 \uBE44\uC911',         field:'damageTakenPct'},
+  enchanter:{label:'\uC11C\uD3EC', color:'#5e7a45', metric:'\uD300 \uD68C\uBCF5\u00B7\uBCF4\uD638\uB9C9 \uBE44\uC911',        field:'healShieldPct'}
+};
+const pct = (x,d=1)=> (x*100).toFixed(d)+'%';
+const one = (x)=> x.toFixed(1);
+const esc = (s)=> String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function splitId(id){const i=id.indexOf('#'); return i<0?[id,'']:[id.slice(0,i),id.slice(i)];}
+/* ---------- distribution metric defs + math ---------- */
+const mean = a => a.length ? a.reduce((s,x)=>s+x,0)/a.length : 0;
+const KDE_SAMPLES = 64;
+// Gaussian-kernel KDE. `bounded` clamps the eval domain to [0,1] and reflects
+// mass across BOTH bounds (0 and 1), since these metrics are genuine [0,1]
+// shares/rates — kp, gameScore and enchanter healShieldPct all reach toward 1,
+// so a one-sided reflection would truncate the upper tail.
+function kde(values, bounded){
+  const v = values.filter(Number.isFinite), n = v.length;
+  if(!n) return {pts:[], maxY:1, lo:0, hi:1};
+  const mu = mean(v);
+  let sd = Math.sqrt(mean(v.map(x=>(x-mu)*(x-mu)))) || 1e-6;
+  let h = 1.06 * sd * Math.pow(n, -1/5); if(h < 1e-6) h = 1e-6;
+  let lo, hi;
+  if(bounded){ lo = 0; hi = 1; }
+  else { lo = Math.min(...v) - 3*h; hi = Math.max(...v) + 3*h;
+         if(hi - lo < 1e-6){ lo -= .5; hi += .5; } }
+  const K = u => Math.exp(-.5*u*u) / Math.sqrt(2*Math.PI);
+  const pts = []; let maxY = 0;
+  for(let i=0;i<KDE_SAMPLES;i++){
+    const x = lo + (hi-lo)*i/(KDE_SAMPLES-1);
+    let y = 0;
+    for(const xi of v){
+      y += K((x-xi)/h);
+      if(bounded){ y += K((x-(-xi))/h); y += K((x-(2-xi))/h); }
+    }
+    y /= (n*h); pts.push({x,y}); if(y>maxY) maxY = y;
+  }
+  return {pts, maxY: maxY||1, lo, hi};
+}
+// Percentile of `m` within `pool` (0..100). Pass a pool that EXCLUDES the
+// player's own games to avoid self-inclusion bias.
+function percentileOf(pool, m){
+  if(!pool.length) return 0;
+  return Math.round(pool.filter(x=>x<m).length / pool.length * 100);
+}
+// Distribution metric definitions. `facet` restricts the pool to that archetype.
+const DIST_METRICS = [
+  {key:'kp',    label:'킬 관여',           color:C.kp,                field:'kp',            bounded:true,  facet:null,        fmt:x=>pct(x,0)},
+  {key:'kda',   label:'KDA',               color:C.win,              field:'kda',           bounded:false, facet:null,        fmt:x=>x.toFixed(1)},
+  {key:'score', label:'게임 점수',         color:C.contrib,          field:'gameScore',     bounded:true,  facet:null,        fmt:x=>x.toFixed(2)},
+  {key:'dmg',   label:'팀 피해량 비중',     color:ARCH.carry.color,   field:'teamDamagePct', bounded:true,  facet:'carry',     fmt:x=>pct(x,0)},
+  {key:'tank',  label:'팀 받은피해 비중',   color:ARCH.tank.color,    field:'damageTakenPct',bounded:true,  facet:'tank',      fmt:x=>pct(x,0)},
+  {key:'heal',  label:'팀 회복·보호막 비중',color:ARCH.enchanter.color,field:'healShieldPct',bounded:true,  facet:'enchanter', fmt:x=>pct(x,0)},
+];
+const DIST_MARK = 'var(--ink)';   // marker line/label color (paper theme — dark ink on cream)
+function fmtDate(s){const d=new Date(s+'T00:00:00Z');return d.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});}
+function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000);}
+
+/* deterministic avatar from profileIconId */
+function avatar(p, big){
+  const [name]=splitId(p.riotId);
+  const h=(p.profileIconId*47)%360;
+  const c1=`hsl(${h} 42% 58%)`, c2=`hsl(${(h+38)%360} 46% 40%)`;
+  const cls = big?'av lg':'av';
+  return `<div class="${cls}" style="background:var(--ink)">${esc(name[0]||'?').toUpperCase()}</div>`;
+}
+function atag(a){const A=ARCH[a];return `<span class="atag"><span class="sw" style="background:${A.color}"></span>${A.label}</span>`;}
+
+const ranked = SNAPSHOT.players.filter(p=>!p.provisional).sort((a,b)=>b.rankScore-a.rankScore);
+const provisional = SNAPSHOT.players.filter(p=>p.provisional).sort((a,b)=>b.rankScore-a.rankScore);
+const maxScore = Math.max(...ranked.map(p=>p.rankScore));
+const GRADES=[['수','su'],['우','u'],['미','mi'],['양','yang'],['가','ga']];
+function gradeOf(rank){var p=(rank-1)/ranked.length;return GRADES[Math.min(4,Math.floor(p*5))];}
+function gradeBadge(rank){var r=gradeOf(rank);return '<span class="grade '+r[1]+'" title="석차 '+rank+'/'+ranked.length+'등">'+r[0]+'</span>';}
+function remarkFor(p){var out=[];if(p.winRate>=0.58)out.push('승부처 판단이 안정적이고 승률이 우수함.');else if(p.winRate>=0.50)out.push('기복은 있으나 제 몫을 충실히 수행함.');else out.push('승률이 부진하니 챔피언 선택과 한타 합류를 재고 요망.');var a=p.mostPlayedArchetype,ac=p.archetypes[a];var role=({carry:'딜러',tank:'탱커',enchanter:'서포터'})[a]||'주';if(ac&&ac.meanContribPct>=0.75)out.push(role+' 역할에서 기여도가 발군임.');else out.push('주 역할('+role+') 기여도는 평이한 수준.');var s=p.gameLog.map(function(g){return g.gameScore;});var half=Math.max(1,Math.floor(s.length/2));var recent=s.slice(0,half).reduce(function(x,y){return x+y;},0)/half;var older=s.slice(half).reduce(function(x,y){return x+y;},0)/Math.max(1,s.length-half);if(recent>older+0.03)out.push('후반 상승세가 뚜렷함.');else if(recent<older-0.03)out.push('후반 집중력 저하, 분발 요망.');else if(p.avgKillParticipation>=0.65)out.push('교전 관여가 적극적임.');return out.slice(0,3).join(' ');}
+
+/* ---------- header ---------- */
+document.getElementById('brandGroup').textContent = SNAPSHOT.group;
+document.getElementById('groupName').textContent = SNAPSHOT.group;
+const W = SNAPSHOT.window;
+document.getElementById('heroMeta').innerHTML = `
+  <span class="chip accent"><span class="dot"></span>${W.queue}</span>
+  <span class="chip">사정일 <b>${fmtDate(SNAPSHOT.generatedAt)}, 2026</b></span>
+  <span class="chip">집계 <b>${fmtDate(W.from)} – ${fmtDate(W.to)}</b></span>
+  <span class="chip">차수 <b>${W.patch}</b></span>`;
+const spanDays = daysBetween(W.from, W.to);
+document.getElementById('statStrip').innerHTML = `
+  <div class="cell"><div class="k">등재 인원</div><div class="v num">${ranked.length}<small>유예 ${provisional.length}명</small></div></div>
+  <div class="cell"><div class="k">분석 경기</div><div class="v num">${SNAPSHOT.totalGames}</div></div>
+  <div class="cell"><div class="k">집계 기간</div><div class="v num">${spanDays}<small>일간</small></div></div>
+  <div class="cell"><div class="k">종목</div><div class="v">${W.queue}<small>칼바람 나락</small></div></div>`;
+(function(){var ss=ranked.map(function(p){return p.rankScore;});var mean=ss.reduce(function(a,b){return a+b;},0)/ss.length;var sd=Math.sqrt(ss.reduce(function(a,b){return a+(b-mean)*(b-mean);},0)/ss.length);document.getElementById('gradeSummary').innerHTML='<span>반 평균 <b>'+mean.toFixed(1)+'</b></span>'+'<span>표준편차 <b>'+sd.toFixed(1)+'</b></span>'+'<span>최고 <b>'+Math.max.apply(null,ss).toFixed(1)+'</b></span>'+'<span>최저 <b>'+Math.min.apply(null,ss).toFixed(1)+'</b></span>'+'<span>수우미양가 <b style="color:var(--win)">수</b>·<b style="color:var(--contrib)">우</b>·<b>미</b>·<b style="color:var(--amber)">양</b>·<b style="color:var(--red)">가</b> 5단계</span>';})();
+document.getElementById('windowFoot').innerHTML =
+  `집계기간: ${fmtDate(W.from)} – ${fmtDate(W.to)} · 차수 ${W.patch} · 석차 최소 ${SNAPSHOT.minGames}전`;
+
+/* ---------- podium ---------- */
+document.getElementById('podium').innerHTML = ranked.slice(0,3).map((p,i)=>{
+  const [name,tag]=splitId(p.riotId);
+  const rankClass = i===0?'p1':'';
+  return `<div class="pod ${rankClass}" data-jump="${esc(p.riotId)}">
+    <div class="crown num">#${i+1}</div>
+    <div class="who">${avatar(p,true)}<div class="name">${esc(name)}<span class="tag">${esc(tag)}</span></div></div>
+    <div class="score num">${one(p.rankScore)}<span class="of"> /100</span></div>
+    <div class="pod-stats">
+      <span class="pg">${gradeBadge(i+1)}<small>등급</small></span>
+      <span><span class="num">${p.games}</span>전</span>
+      <span><span class="num">${pct(p.winRate,0)}</span> 승률</span>
+      <span>${atag(p.mostPlayedArchetype)}</span>
+    </div>
+  </div>`;
+}).join('');
+
+/* ---------- sortable table ---------- */
+const COLS = [
+  {key:'rank',  label:'#',     cls:'l',   sortable:false},
+  {key:'riotId',label:'이름',cls:'l',   sortable:true},
+  {key:'rankScore', label:'점수', cls:'', sortable:true},
+  {key:'grade', label:'등급', cls:'c', sortable:false},
+  {key:'games', label:'경기', cls:'hide-sm', sortable:true},
+  {key:'winRate', label:'승률', cls:'', sortable:true},
+  {key:'avgKda', label:'KDA', cls:'hide-sm', sortable:true},
+  {key:'avgKillParticipation', label:'KP %', cls:'', sortable:true},
+  {key:'arch', label:'주 역할', cls:'hide-sm', sortable:false},
+  {key:'chev', label:'', cls:'', sortable:false}
+];
+let sort = {key:'rankScore', dir:-1};
+const openRows = new Set();
+
+function renderHead(){
+  document.getElementById('thead').innerHTML = COLS.map(c=>{
+    const sorted = c.sortable && sort.key===c.key;
+    const arrow = sorted ? (sort.dir<0?'▼':'▲') : '';
+    return `<th class="${c.cls} ${sorted?'sorted':''}" data-sort="${c.sortable?c.key:''}">${c.label}<span class="arrow">${arrow}</span></th>`;
+  }).join('');
+  document.querySelectorAll('#thead th[data-sort]').forEach(th=>{
+    const k=th.getAttribute('data-sort'); if(!k)return;
+    th.addEventListener('click',()=>{
+      if(sort.key===k) sort.dir*=-1; else {sort.key=k; sort.dir = (k==='riotId')?1:-1;}
+      renderHead(); renderBody();
+    });
+  });
+}
+function sortedRanked(){
+  const arr=[...ranked];
+  arr.sort((a,b)=>{
+    let av=a[sort.key], bv=b[sort.key];
+    if(sort.key==='riotId'){return av.localeCompare(bv)*sort.dir;}
+    return (av-bv)*sort.dir;
+  });
+  return arr;
+}
+function renderBody(){
+  const arr=sortedRanked();
+  const baseRankByScore = {};
+  [...ranked].sort((a,b)=>b.rankScore-a.rankScore).forEach((p,i)=>baseRankByScore[p.riotId]=i+1);
+  const tb=document.getElementById('tbody'); tb.innerHTML='';
+  arr.forEach(p=>{
+    const [name,tag]=splitId(p.riotId);
+    const rk=baseRankByScore[p.riotId];
+    const isOpen=openRows.has(p.riotId);
+    const wrHi = p.winRate>=0.55, wrLo = p.winRate<0.5;
+    const tr=document.createElement('tr');
+    tr.className='row'+(isOpen?' open':'');
+    tr.dataset.id=p.riotId;
+    tr.innerHTML=`
+      <td class="l rank-cell"><span class="${rk<=3?'medal':''}">${rk}</span></td>
+      <td class="l"><div class="player-cell">${avatar(p)}<div class="nm">${esc(name)}<span class="tag">${esc(tag)}</span></div></div></td>
+      <td><span class="score-cell">${one(p.rankScore)}<span class="bar"><i style="width:${p.rankScore/maxScore*100}%"></i></span></span></td>
+      <td class="c">${gradeBadge(rk)}</td>
+      <td class="num hide-sm">${p.games}</td>
+      <td class="wr ${wrHi?'hi':''}${wrLo?'lo':''}">${pct(p.winRate,1)}</td>
+      <td class="num hide-sm">${p.avgKda.toFixed(2)}</td>
+      <td class="num">${pct(p.avgKillParticipation,1)}</td>
+      <td class="l hide-sm">${atag(p.mostPlayedArchetype)}</td>
+      <td><span class="chev">▶</span></td>`;
+    tr.addEventListener('click',()=>toggleRow(p.riotId));
+    tb.appendChild(tr);
+    // detail row
+    const dr=document.createElement('tr');
+    dr.className='detail-row'+(isOpen?' open':'');
+    dr.dataset.detail=p.riotId;
+    dr.innerHTML=`<td colspan="${COLS.length}"><div class="detail">${isOpen?detailHTML(p):''}</div></td>`;
+    tb.appendChild(dr);
+  });
+}
+function toggleRow(id){
+  if(openRows.has(id)) openRows.delete(id); else openRows.add(id);
+  renderBody();
+}
+
+/* ---------- player detail ---------- */
+function sparkline(log){
+  const data=[...log].reverse(); // chronological
+  const n=data.length, w=300, h=72, pad=6;
+  const xs=i=> pad + i*(w-2*pad)/(n-1||1);
+  const ys=v=> h-pad - v*(h-2*pad);
+  const pts=data.map((g,i)=>`${xs(i).toFixed(1)},${ys(g.gameScore).toFixed(1)}`).join(' ');
+  const area=`${pad},${h-pad} ${pts} ${(w-pad)},${h-pad}`;
+  const dots=data.map((g,i)=>`<circle cx="${xs(i).toFixed(1)}" cy="${ys(g.gameScore).toFixed(1)}" r="${g.win?2.6:2}" fill="${g.win?C.contrib:'#9a8c68'}"/>`).join('');
+  const last=data[n-1];
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none">
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${C.contrib}" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="${C.contrib}" stop-opacity="0"/></linearGradient></defs>
+    <polygon points="${area}" fill="url(#sg)"/>
+    <polyline points="${pts}" fill="none" stroke="${C.contrib}" stroke-width="1.6" stroke-linejoin="round"/>
+    ${dots}
+  </svg>`;
+}
+function donut(p){
+  const order=['carry','tank','enchanter'].filter(k=>p.archetypes[k]&&p.archetypes[k].games>0);
+  const total=order.reduce((s,k)=>s+p.archetypes[k].games,0);
+  const R=34, sw=11, cx=42, cy=42, circ=2*Math.PI*R;
+  let off=0; const segs=order.map(k=>{
+    const frac=p.archetypes[k].games/total;
+    const seg=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${ARCH[k].color}" stroke-width="${sw}"
+      stroke-dasharray="${(frac*circ).toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-off*circ).toFixed(2)}"
+      transform="rotate(-90 ${cx} ${cy})" stroke-linecap="butt"/>`;
+    off+=frac; return seg;
+  }).join('');
+  const legend=order.map(k=>{
+    const g=p.archetypes[k];
+    return `<div class="li"><span class="sw" style="background:${ARCH[k].color}"></span>${ARCH[k].label}
+      <span class="num">${g.games}전 · ${pct(g.meanContribPct,0)}</span></div>`;
+  }).join('');
+  return `<div class="donut-wrap">
+    <svg width="84" height="84" viewBox="0 0 84 84">
+      <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="rgba(42,36,27,.12)" stroke-width="${sw}"/>
+      ${segs}
+      <text x="${cx}" y="${cy-2}" text-anchor="middle" font-family="var(--mono)" font-size="15" font-weight="600" fill="#2a241b">${p.games}</text>
+      <text x="${cx}" y="${cy+11}" text-anchor="middle" font-family="var(--mono)" font-size="8" fill="#8a7c60">\uACBD\uAE30</text>
+    </svg>
+    <div class="donut-legend">${legend}</div>
+  </div>`;
+}
+function distCurve(p, m){
+  const all = SNAPSHOT.games.filter(g => !m.facet || g.archetype === m.facet);
+  const mine = all.filter(g => g.riotId === p.riotId).map(g => g[m.field]);
+  const others = all.filter(g => g.riotId !== p.riotId).map(g => g[m.field]);
+  const pool = all.map(g => g[m.field]);
+  if(mine.length === 0 || pool.length < 4){
+    return `<div class="kde-card empty"><div class="kde-head"><span>${m.label}</span>
+      <span class="kde-p">—</span></div><div class="kde-na">게임 없음</div></div>`;
+  }
+  const pMean = mean(mine);
+  const {pts, maxY, lo, hi} = kde(pool, m.bounded);
+  const w=300, h=88, pad=6, base=h-pad;
+  const X = x => pad + (x-lo)/((hi-lo)||1) * (w-2*pad);
+  const Y = y => base - y/maxY * (h-2*pad-10);   // -10 reserves top headroom for the mean label
+  const line = pts.map(d=>`${X(d.x).toFixed(1)},${Y(d.y).toFixed(1)}`).join(' ');
+  const area = `${X(lo).toFixed(1)},${base} ${line} ${X(hi).toFixed(1)},${base}`;
+  const mx = X(Math.max(lo, Math.min(hi, pMean)));
+  const pctile = percentileOf(others, pMean);
+  const gid = 'kdeg-'+m.key;
+  const right = mx > w*0.62, thin = pool.length < 20;   // flip label left when marker is near the right edge
+  return `<div class="kde-card${thin?' thin':''}">
+    <div class="kde-head"><span>${m.label}</span><span class="kde-p">P${pctile} · ${m.fmt(pMean)}</span></div>
+    <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none">
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${m.color}" stop-opacity="0.22"/>
+        <stop offset="1" stop-color="${m.color}" stop-opacity="0"/></linearGradient></defs>
+      <polygon points="${area}" fill="url(#${gid})"/>
+      <polyline points="${line}" fill="none" stroke="${m.color}" stroke-width="1.6" stroke-linejoin="round"/>
+      <line x1="${mx.toFixed(1)}" y1="${(pad+10).toFixed(1)}" x2="${mx.toFixed(1)}" y2="${base}"
+        stroke="${DIST_MARK}" stroke-width="1.2" stroke-dasharray="3 2.5" opacity="0.85"/>
+      <text x="${(mx + (right?-4:4)).toFixed(1)}" y="${(pad+8).toFixed(1)}"
+        text-anchor="${right?'end':'start'}" font-family="var(--mono)" font-size="9"
+        fill="${DIST_MARK}">${m.fmt(pMean)}</text>
+    </svg></div>`;
+}
+function distSection(p){
+  return `<div class="det-block" style="grid-column:1/-1">
+    <div class="lbl">지표 분포 · 표시선 = 본인 평균 · P = 반 내 백분위</div>
+    <div class="kde-grid">${DIST_METRICS.map(m=>distCurve(p,m)).join('')}</div>
+  </div>`;
+}
+function detailHTML(p){
+  const best=[...p.gameLog].sort((a,b)=>b.gameScore-a.gameScore)[0];
+  const scores=p.gameLog.map(g=>g.gameScore);
+  const lo=Math.min(...scores), hi=Math.max(...scores);
+  const [bn,bt]=splitId(p.riotId);
+  return `<div class="detail-inner">
+    <div class="det-block">
+      <div class="lbl">게임 점수 추이 · 최근 ${p.gameLog.length}전</div>
+      <div class="spark-wrap">${sparkline(p.gameLog)}
+        <div class="spark-meta"><span>과거</span><span>최저 ${lo.toFixed(2)} · 최고 ${hi.toFixed(2)}</span><span>최근</span></div>
+      </div>
+      <div class="metrics" style="margin-top:12px">
+        <div class="m"><div class="mk">평균 KDA</div><div class="mv">${p.avgKda.toFixed(2)}</div></div>
+        <div class="m"><div class="mk">킬 관여</div><div class="mv">${pct(p.avgKillParticipation,1)}</div></div>
+        <div class="m"><div class="mk">승률</div><div class="mv">${pct(p.winRate,1)}</div></div>
+        <div class="m"><div class="mk">전적</div><div class="mv">${p.wins}–${p.losses}</div></div>
+      </div>
+    </div>
+    <div class="det-block">
+      <div class="lbl">역할 분포</div>
+      ${donut(p)}
+    </div>
+    <div class="det-block">
+      <div class="lbl">최고 활약 경기</div>
+      <div class="bestgame">
+        <div class="bg-top"><div class="t">${esc(best.champion)} · ${atag(best.archetype)}</div>
+          <span class="res ${best.win?'W':'L'}">${best.win?'승':'패'}</span></div>
+        <div class="bg-stats">
+          <span>점수 <span class="num">${best.gameScore.toFixed(2)}</span></span>
+          <span>KDA <span class="num">${best.kda.toFixed(1)}</span></span>
+          <span>킬관여 <span class="num">${pct(best.killParticipation,0)}</span></span>
+        </div>
+        <div style="margin-top:9px;font-size:11px;color:var(--ink-faint)">${fmtDate(best.date)} · ${ARCH[best.archetype].metric} ${pct(best[ARCH[best.archetype].field],0)}</div>
+      </div>
+      <div class="metrics" style="margin-top:12px;grid-template-columns:1fr">
+        <div class="m"><div class="mk">종합 점수</div><div class="mv" style="color:var(--accent)">${one(p.rankScore)} <span style="font-size:12px;color:var(--ink-faint)">/100</span></div></div>
+      </div>
+    </div>
+    ${distSection(p)}
+  </div>
+  <div class="teacher-remark"><span class="pen">담임 의견</span><span>${remarkFor(p)}</span></div>`;
+}
+
+/* ---------- provisional band ---------- */
+document.getElementById('provBand').innerHTML = provisional.length ? `
+  <div class="ph"><span class="pdot"></span>유예 · ${SNAPSHOT.minGames}전 미만 — 석차 제외</div>
+  <table><tbody>${provisional.map(p=>{
+    const [name,tag]=splitId(p.riotId);
+    return `<tr class="row" data-id="${esc(p.riotId)}">
+      <td class="l rank-cell" style="color:var(--amber)">—</td>
+      <td class="l"><div class="player-cell">${avatar(p)}<div class="nm">${esc(name)}<span class="tag">${esc(tag)}</span></div></div></td>
+      <td><span class="score-cell" style="color:var(--ink-dim)">${one(p.rankScore)}</span></td>
+      <td class="c"><span class="prov-grade">유예</span></td>
+      <td class="num hide-sm">${p.games}</td>
+      <td class="wr">${pct(p.winRate,1)}</td>
+      <td class="num hide-sm">${p.avgKda.toFixed(2)}</td>
+      <td class="num">${pct(p.avgKillParticipation,1)}</td>
+      <td class="l hide-sm"><span class="flag">▲ ${p.games}/${SNAPSHOT.minGames}전</span></td>
+      <td><span class="chev">▶</span></td>
+    </tr>
+    <tr class="detail-row" data-detail="${esc(p.riotId)}"><td colspan="${COLS.length}"><div class="detail"></div></td></tr>`;
+  }).join('')}</tbody></table>` : '';
+
+/* provisional expand */
+document.querySelectorAll('#provBand tr.row').forEach(tr=>{
+  tr.addEventListener('click',()=>{
+    const id=tr.dataset.id;
+    const dr=document.querySelector(`#provBand tr[data-detail="${CSS.escape(id)}"]`);
+    const p=provisional.find(x=>x.riotId===id);
+    const isOpen=tr.classList.toggle('open');
+    dr.classList.toggle('open',isOpen);
+    dr.querySelector('.detail').innerHTML = isOpen?detailHTML(p):'';
+  });
+});
+
+/* podium jump → open row */
+document.querySelectorAll('.pod[data-jump]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const id=el.dataset.jump;
+    if(!openRows.has(id)) openRows.add(id);
+    renderBody();
+    const row=document.querySelector(`#tbody tr.row[data-id="${CSS.escape(id)}"]`);
+    if(row){const y=row.getBoundingClientRect().top+window.scrollY-90; window.scrollTo({top:y,behavior:'smooth'});}
+  });
+});
+
+/* ---------- composition ---------- */
+const wts=SNAPSHOT.weights;
+document.getElementById('compLegend').innerHTML = `
+  <div class="li"><span class="sw" style="background:${C.win}"></span><b>승리</b><span class="w">×${wts.win}</span></div>
+  <div class="li"><span class="sw" style="background:${C.contrib}"></span><b>기여</b><span class="w">×${wts.contribution}</span></div>
+  <div class="li"><span class="sw" style="background:${C.kp}"></span><b>킬관여</b><span class="w">×${wts.killParticipation}</span></div>
+  <div class="li" style="margin-left:auto;color:var(--ink-faint)">막대 100점 만점 · 칸에 올리면 점수 표시</div>`;
+document.getElementById('comp').innerHTML = ranked.map(p=>{
+  const [name,tag]=splitId(p.riotId);
+  const c=p.components;
+  const seg=(v,col,lab)=>`<div class="seg" style="width:${v}%;background:${col}" title="${lab}: ${one(v)} pts"><span>${v>=6?one(v):''}</span></div>`;
+  return `<div class="comp-row">
+    <div class="cname">${avatar(p)}<div class="nm">${esc(name)}<span class="tag" style="font-family:var(--mono);font-size:10px;color:var(--ink-faint)">${esc(tag)}</span></div></div>
+    <div class="stackbar">
+      ${seg(c.winPoints,C.win,'Win')}
+      ${seg(c.contribPoints,C.contrib,'Contribution')}
+      ${seg(c.kpPoints,C.kp,'Kill participation')}
+      <div class="track-max"></div>
+    </div>
+    <div class="cscore">${one(p.rankScore)}</div>
+  </div>`;
+}).join('');
+
+/* ---------- archetype boards ---------- */
+let curArch='carry';
+const THIN=8;
+function renderArchToggle(){
+  document.getElementById('archToggle').innerHTML = Object.keys(ARCH).map(k=>
+    `<button data-arch="${k}" class="${k===curArch?'on':''}"><span class="sw" style="background:${ARCH[k].color}"></span>${ARCH[k].label}</button>`
+  ).join('');
+  document.querySelectorAll('#archToggle button').forEach(b=>b.addEventListener('click',()=>{curArch=b.dataset.arch;renderArchToggle();renderArchBoard();}));
+}
+function renderArchBoard(){
+  const A=ARCH[curArch];
+  document.getElementById('archDesc').innerHTML =
+    `<span><b style="color:${A.color}">${A.label}</b> 역할 평균 기여 백분위 순 · 평가지표 <code>${A.metric}</code></span>`;
+  const list=SNAPSHOT.players.filter(p=>p.archetypes[curArch]&&p.archetypes[curArch].games>0)
+    .map(p=>({p,g:p.archetypes[curArch]}))
+    .sort((a,b)=>b.g.meanContribPct-a.g.meanContribPct);
+  const maxPct=Math.max(...list.map(x=>x.g.meanContribPct),0.01);
+  document.getElementById('archBoard').innerHTML = list.map((x,i)=>{
+    const [name,tag]=splitId(x.p.riotId);
+    const thin=x.g.games<THIN;
+    return `<div class="arow ${thin?'thin':''}">
+      <div class="arank">${i+1}</div>
+      <div class="aname">${avatar(x.p)}<span>${esc(name)}</span>${thin?`<span class="flag" style="margin-left:6px">▲ 표본부족 (${x.g.games}전)</span>`:''}</div>
+      <div class="agames">${x.g.games}전</div>
+      <div class="apct"><span class="ptrack"><i style="width:${x.g.meanContribPct/maxPct*100}%;background:${A.color}"></i></span><span class="pv">${pct(x.g.meanContribPct,0)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- formula ---------- */
+document.getElementById('formula').innerHTML =
+  `<b>rankScore</b> = <span class="w-win">${wts.win*100} · winRate</span> &nbsp;+&nbsp; <span class="w-con">${wts.contribution*100} · meanContributionPercentile</span> &nbsp;+&nbsp; <span class="w-kp">${wts.killParticipation*100} · meanKillParticipation</span><br>
+   <span style="color:var(--ink-faint);font-size:13px">= winPoints (≤ ${wts.win*100}) &nbsp;+&nbsp; contribPoints (≤ ${wts.contribution*100}) &nbsp;+&nbsp; kpPoints (≤ ${wts.killParticipation*100}) &nbsp;→&nbsp; out of 100</span>`;
+
+/* ---------- init ---------- */
+renderHead(); renderBody(); renderArchToggle(); renderArchBoard();
+document.getElementById('overallRemark').innerHTML='본 분기 「'+SNAPSHOT.group+'」 '+ranked.length+'명에 대한 ARAM 전투력 사정 결과를 위와 같이 통지함. 상위권의 기여도가 돋보였으며, 표본이 부족한 '+provisional.length+'명은 다음 분기 분발을 요망함. 본 통지표의 수치는 '+SNAPSHOT.window.patch+' 차수 '+SNAPSHOT.totalGames+'전을 근거로 산출하였음.';
+
+/* smooth anchor nav */
+document.querySelectorAll('.nav a:not(.nav-alt)').forEach(a=>a.addEventListener('click',e=>{
+  e.preventDefault();const t=document.querySelector(a.getAttribute('href'));
+  if(t){const y=t.getBoundingClientRect().top+window.scrollY-70;window.scrollTo({top:y,behavior:'smooth'});}
+}));
+</script>
+</body>
+</html>
