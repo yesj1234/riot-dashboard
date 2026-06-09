@@ -1,65 +1,53 @@
 #!/usr/bin/env python3
-"""Diagnostic: how many ARAM-family games per member per queue, including the
-augment-ARAM queue 2400 ("ARAM: Mayhem"), with year breakdown.
+"""Diagnostic: does MATCH-V5 actually return queue 2400 (ARAM: Mayhem / augment)
+matches at all?
 
-Queue 2400 = ARAM: Mayhem (augment Howling Abyss). 450 = classic ARAM.
-720 = ARAM Clash. This counts each, by year, per member — no scoring, no writes.
+queues.json lists 2400 as a live queue (notes=None), but that doesn't prove the
+match-history endpoint serves it. This probes, for each member, the raw ID list
+for queue 2400 vs 450 (and a no-filter recent sample whose queueIds we tally),
+so we can tell "nobody in this group played 2400" apart from "the API doesn't
+expose 2400 at all." Read-only; writes nothing.
 """
 from __future__ import annotations
 import sys
 from collections import Counter
-from datetime import datetime, timezone
 from aram_snapshot import RiotClient, MEMBERS, BASE, API_KEY, resolve_puuid
 
-ARAM_QUEUES = {450: "classic ARAM", 2400: "ARAM: Mayhem (augment)", 720: "ARAM Clash"}
-CAP = 200  # per member per queue
 
-
-def ids_for_queue(client: RiotClient, puuid: str, queue: int, cap: int) -> list[str]:
-    ids, start = [], 0
-    while len(ids) < cap:
-        page = client.get(f"{BASE}/lol/match/v5/matches/by-puuid/{puuid}/ids",
-                          params={"queue": queue, "start": start, "count": 100})
-        if not page:
-            break
-        ids.extend(page)
-        if len(page) < 100:
-            break
-        start += 100
-    return ids[:cap]
+def ids(client: RiotClient, puuid: str, queue: int | None, count: int) -> list[str]:
+    params = {"start": 0, "count": count}
+    if queue is not None:
+        params["queue"] = queue
+    page = client.get(f"{BASE}/lol/match/v5/matches/by-puuid/{puuid}/ids", params=params)
+    return page or []
 
 
 def main() -> None:
     client = RiotClient(API_KEY)
-    grand = Counter()
-    grand2026 = Counter()
+    seen_queues = Counter()  # across a no-filter recent sample, all members
+
     for riot_id in MEMBERS:
         puuid = resolve_puuid(client, riot_id)
         if not puuid:
             print(f"  could not resolve {riot_id}", file=sys.stderr)
             continue
-        line = [f"{riot_id}:"]
-        for q, label in ARAM_QUEUES.items():
-            ids = ids_for_queue(client, puuid, q, CAP)
-            n = len(ids)
-            grand[q] += n
-            # year breakdown needs match detail; sample only if there are games
-            n2026 = 0
-            for mid in ids:
-                m = client.get(f"{BASE}/lol/match/v5/matches/{mid}")
-                if not m:
-                    continue
-                info = m["info"]
-                ts = (info.get("gameEndTimestamp") or info.get("gameCreation", 0)) / 1000
-                if ts and datetime.fromtimestamp(ts, tz=timezone.utc).year >= 2026:
-                    n2026 += 1
-            grand2026[q] += n2026
-            line.append(f"q{q}={n}(2026:{n2026})")
-        print("  " + "  ".join(line))
+        n2400 = len(ids(client, puuid, 2400, 100))
+        n450 = len(ids(client, puuid, 450, 100))
+        # No-filter recent 30: tally their queueIds so we SEE what they actually play
+        recent = ids(client, puuid, None, 30)
+        for mid in recent[:30]:
+            m = client.get(f"{BASE}/lol/match/v5/matches/{mid}")
+            if m:
+                seen_queues[m["info"].get("queueId")] += 1
+        print(f"  {riot_id}: q2400_ids={n2400}  q450_ids={n450}")
 
-    print("\n=== TOTAL by ARAM queue ===")
-    for q, label in ARAM_QUEUES.items():
-        print(f"  queue {q} [{label}]: {grand[q]} total, {grand2026[q]} in 2026")
+    print("\n=== queueIds actually seen in members' recent no-filter sample ===")
+    for q, n in seen_queues.most_common():
+        print(f"  queue {q}: {n}")
+    print("\nReading: if q2400_ids is 0 for everyone AND 2400 never appears in the "
+          "no-filter sample, this group simply hasn't played ARAM: Mayhem. The "
+          "endpoint itself accepts queue=2400 (no error = supported), so absence "
+          "means no games, not 'API doesn't provide it'.")
 
 
 if __name__ == "__main__":
