@@ -60,3 +60,7 @@ def main() -> None:
     print("\n=== TOTAL by ARAM queue ===")
     for q, label in ARAM_QUEUES.items():
         print(f"  queue {q} [{label}]: {grand[q]} total, {grand2026[q]} in 2026")
+
+
+if __name__ == "__main__":
+    main()

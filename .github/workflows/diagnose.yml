@@ -28,4 +28,4 @@ jobs:
             echo "::error::RIOT_API_KEY secret is not set."
             exit 1
           fi
-          python diagnose_queues.py
+          python -u diagnose_queues.py
